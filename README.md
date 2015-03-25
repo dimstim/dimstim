@@ -3,10 +3,10 @@ stimuli with high temporal precision. It relies heavily on the
 [VisionEgg](http://visionegg.org) library.
 
 Much of the behaviour and many of the features are based on Display, a DOS-based (Fortran)
-stimulus program that Nicholas Swindale developed. Keith Godfrey wrote the DT.c extension for
-interfacing with Data Translations digital output boards. Tim Blanche developed the companion
-acquisition software "Surf", and much of the functionality of dimstim and its interoperability
-with Surf came about with his help.
+stimulus program that [Nicholas Swindale](http://swindale.ecc.ubc.ca) developed. Keith Godfrey
+wrote the DT.c extension for interfacing with Data Translations digital output boards. Tim
+Blanche developed the companion acquisition software "Surf", and much of the functionality of
+dimstim and its interoperability with Surf came about with his help.
 
 You'll need Python 2.5 to use dimstim. Versions of Python 2.x > 2.5 should also work, but
 haven't been tested. dimstim should work on Linux and OSX, but has only been heavily tested in
