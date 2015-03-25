@@ -1,0 +1,179 @@
+TODO:
+
+- BUG: running an experiment with all params, both 'static' and 'dynamic' set to scalars, plus only one dynamic param set to a list of length 1, making it the only Variable, and getting rid of both Runs and BlankSweeps (leaving them to the default None), or allowing only 1 run (Runs(n=1)), raises a TypeError:
+
+    C:\home\admin\Desktop\Work\dimstim\tests>static_grating_test.py
+    Running Experiment script: /home/admin/Desktop/Work/dimstim/tests/static_grating_test.py
+    Traceback (most recent call last):
+      File "C:\home\admin\Desktop\Work\dimstim\tests\static_grating_test.py", line 62, in <module>
+        e.run() # run it
+      File "C:\home\admin\Desktop\Work\dimstim\dimstim\Experiment.py", line 209, in run
+        self.build()
+      File "C:\home\admin\Desktop\Work\dimstim\dimstim\Grating.py", line 49, in build
+        super(Grating, self).build()
+      File "C:\home\admin\Desktop\Work\dimstim\dimstim\Experiment.py", line 83, in build
+        self.sec = self.calcduration()
+      File "C:\home\admin\Desktop\Work\dimstim\dimstim\Experiment.py", line 67, in calcduration
+        blanksweepvsyncs + \
+    TypeError: 'numpy.int32' object is not iterable
+
+- get rid of all use of super(), replace with direct call of base class instead
+
+- stop calling __class__, use type() instead
+
+- consider renaming Experiment to StimulusSession or something similar, Experiment is sort of an overloaded word. This would then have to be done in neuropy too
+
+- what about playing back movies in full colour for fun? They look so much prettier. Maybe superficially compare responses to greyscale...
+    - try testing gamma with colour. Do the guns add up linearly? We could always adjust each colour's gamma separately...
+    - probably don't need to mess with gamma - running nat movies greyscale without gamma correction right now anyway to preserve good dynamic range
+
+- convert all files from PC to UNIX?
+
+- make screen.get_framebuffer_as_array for all Experiment types more easily available from outside of dimstim (for analysis in neuropy) so you can grab the frame buffer data at any timepoint (and use for, say, revcorr)
+
+- when converting between pix and deg, shouldn't we be using opp = 2.0 * distance * tan(deg/2.0), ie trigonometry of triangles, instead of solid angle of a circle like we're currently using? See Core.deg2pix and Core.pix2deg
+    - yes, but Nick argues it isn't worth it, and it still wouldn't be perfect, don't remember why right now
+
+- go through svn commit log and check for things that were described as needing testing
+
+- check code that generated mseq movies. Is this built into scipy?
+    - mseq is aka maximum length sequence (MLS): http://en.wikipedia.org/wiki/Maximum_length_sequence
+    - use a 64x64 mseq instead of multiple 32x32 mseqs? This will increase the number of spikes and the size/resolution of RF mapping
+        - risky, since mseq64 will take 4x as long as a mseq32
+        - nope, can't do this. Would require frame indices up to 262143. mseq32 is as much as the system can handle
+    - or, just run mseq32 4 times in a row. Give it 4 Experiments for this in a single Recording, instead of 4 runs in a single Experiment. It should be easier to analyze if its in separate Experiments, then can compare RFs for first and last Experiment, or just pool STA across all 4
+    - maybe reconsider movie size? should mseqs be bigger? At current size, are we getting more resolution than we need, or is it just right?
+
+- search for multiple question or exclamation marks in a row to find outstanding issues in the code?????!!!!!!!!!!
+
+- wishful: add a hook to std.err that dumps it all to the log, that way even DT.c errors get logged (right now they just print to screen)
+    - better yet, just implement the DT stuff in ctypes, and get rid of the C file. Would have to worry about platform dependence, but could use pyglet as a good model of how to do it right. Besides, DT driver/library support on anything other than windows is flaky
+
+- wishful idea: if an experiment script is passed some kind of arg (-inspect ?) at the command line, have it drop you into the interpreter (possible? better yet, have it pop open a pyshell window), and pause before the main loop actually starts so you can inspect all of its properties, then let you exit so it can actually run the main loop
+
+- document the exact version of the nvidia drivers, settings for the screen timings, etc.
+
+- replace checksum with CRC(32?) - this could be really useful, but would require some Delphi coding and C coding
+    - or at least make the checksum 32 bit? is it 16 bit right now?
+
+- add xpos and ypos as dimensions in all stimuli (except maybe sparse), offset from orig. If xpos or ypos left as None, set to 0. In bars, if speed is None (or 0?), update with xpos and ypos, otherwise ignore them. In gratings, if tfreq is None (or 0?), update with xpos and  ypos.
+
+- turn pre and postexp into just blanksweeps added at start and end of sweeplist, allow them to have different durations from normal blank sweeps
+    - this way, you get 65535s in the stim record during the pre and postexp delays, would have to do this for the postsweep delay too
+
+- make samplesperpix a f'n of mask diameter, not constant across all masks
+
+- Mirabel's extra classical bars moving towards RF stim
+
+- dual flashed bars for STDP
+
+- brightness, contrast of movies and mseq
+
+- square mask, speed up generation of circle and gaussian masks? Masks should really just be another stimulus you stick in the viewport
+
+- check the test for aliasing in time for gratings - what's the maximum tfreq for a given refresh rate?
+
+- set different mask instance for each movie/grating, allowing you to have movies of different sizes , yet still have same sized mask (in deg, which means it's different in nmasksamples) for all. Also would allow you to switch mask types and sizes if you like. Do this by making a list of mask objects which corresponds to the playlist of movies. This is already done to an extent in gratings, but only allows you to generate masks of different radii, not of different types.
+
+- to save space in text header, could send numbers in sweeplist and framei as hex instead of base 10 :)
+
+- multiple simultaneous stimuli support
+
+- increase DIN to 20 bits from 16, leave the last 4 as status bits. This increases max number of unique sweeps to ~ 1 million. Can't use the remaining 8 of the total 32 bits cuz they're used to control the MUX-80
+
+- add a pause status bit, although there wouldn't be room if the DIN was increased to 20 bits
+
+- masks for bars and sparsenoise (both are target stimuli)
+
+- why are the timestamps for the .srf files (specifically cat 15 recording 28 driftbars, 20/03/2005  01:21a) about an hour later than the timestamps in the Cat 15.log file for the corresponding experiment (2005-03-20 00:17:16.656000)? maybe a daylight savings time thing? but Win2k should've switched it on both comps at the same time, no?
+
+
+--------------------------------------------------------------------------------------------------------------------
+DONE:
+
+- print out shortest IFI in vsynctimer
+- replace swap vsync staticscreen calls with the sync2vsync() function
+- get rid of as many exec() and eval() calls as possible
+- only a problem when MS IntelliPoint has scroll wheel button set to some custom command: scroll wheel button doesn't work in ManBar (mouse dependent? pygame problem?)
+- to deal with changes, might have to add code to neuropy that checks for whether Cat > 15
+     - add a .__version__ to dimstim that equals the next Cat it'll be used on,
+     - could also use svn revs...
+- nah: add Screen.gamma setting to dimstim.cfg, override the setting in VisionEgg.cfg?
+- include blanksweep vsyncs in Experiment.nvsyncsdisplayed
+- upgrade Woof to Python 2.5
+- change date format on woof (stimulus computer) to be: YYYY-MM-DD
+- abstract out Experiment.calcduration(), should be more or less identical for all Experiment subtypes
+- rename sweeptimeSec to sweepSec for classic stimuli, to sweeptimeMsec to sweepMsec for movie stimuli
+- add date/time stamp to each text header, so you can easily find the corresponding log entry, and also so you can meaningfully append the spike times of neurons from different Recordings by adding the correct inter-Recording-interval
+- move # comments in experiment scripts from above to beside the field?
+- use repr() instead of manually building syntax strings when generating textheader. duh.
+- replace all SLASH, / and \\ stuff by using os.path calls, like os.path.basename, os.path.dirname, os.path.join, os.path.normpath, os.path.splitdrive, os.path.splitext, os.path.split
+- switch to forward slashes for pathnames instead of double backslashes?
+- when converting all the stims to objects (like Movies), inherit from an abstract Experiment class (new style) that has all the typical attributes that all the stim classes share (like varlist, dimlist, sweeplist, etc.)
+- replace all mention of Stims with Experiments
+- call new refactored version dimstim instead of Dimstim
+    - rename Experiments folder to experiments?
+- change blankSweep from a 2 tuple of (n, duration) to two separate parameters, say nblanksweeps, blanksweepsec/blanksweepmsec
+- change global EYE from just an integer to one of 4 possible descriptive strings, don't need to stick to Nick's old convention any more
+- varlist and dimlist no longer exist anyway: stop modifying lists and dicts passed to f'ns! This affects their value outside the scope of the f'n as well. Make 'em return them at least, or make a copy within the f'n before modifying it.
+- use repr instead: listrep() has problems with ndec, so does dictrep prolly
+    - make 2 format strings: one for integer values, one for float values, and use %d and %f, don't use %s?
+    - check for longs
+    - it's also very very slow, use faster string methods?
+- take constants out of ext.py and make a constants.py file, which is imported by ext.py - or should there be stuff in the __init.py__ file?
+- rename extPostC to just DT
+- need to recompile DT C wrapper for Python 2.4 using VC++7.1, compiled code should be faster than gcc in Windows anyway
+- change buildSweepTable() to a SweepTable object with a build() or calc() method
+
+- 2 textheader possibilities, I picked #2:
+    1. change textheader to pickled string of the Experiment object
+        - normal global ALLCAPS constants at the start of the current textheader would need to be made attribs of the Experiment object
+        - need to check if pickled size is too big with sweepis, if so, need to make a copy of the Experiment object, delete its sweepis field, and then pickle it
+        - need to ensure that pickled string len is multiple of 2
+            - does adding an extra null to a pickled string mess things up when unpickling? hope not...
+        - then, can unpickle it from the .srf file, save its repr to a textheader file
+            - to get repr of all attribs of an object, iterate over its attribs, get repr of each of them and print it to file
+                - is there a nicer built-in way of doing this?
+        - Danger, pickling can change between versions, unless you use a consistent protocol (say 0 is the most backwards compatible)
+            - some stuff can't be pickled... probably not the simple Experiment objects we're talking about though
+        - downside: pickling won't save comments from the script file
+    2. when sending the textheader, include all the normal global constants at the start as usual, then, just include the entire text of the experiment script file, maybe with comments and blank lines stripped to save space. This is much simpler than manually building it up from dictionaries passed around
+        - bet there's a way to automatically strip comments out of a string using tokenize or parser? maybe comments should be left in anyway, they're there for a reason after all
+
+        - Only catch is, you can't include anything that generates random values in the script. You have to run that generator once separately, then copy and paste the list of values into the script and save it that way....
+            - this is the right thing to do anyway. benefit is that each time you re-run the experiment, you know that it'll run in exactly the same way
+        - another benefit is that it'll reduce the ASCII length of long but simple lists, like range(6000) or [3,0,-3]*1000
+            - pickling won't do this for you!
+        - another catch is that you have to refrain from running the experiment (usu last line in the script) when calling eval() on the textheader in neuropy
+        - yet another catch is that some params are set to load from the config file using dc. You'd have to replace these with the actual value used. This is the most difficult catch of them all, should be doable though
+
+- restore bg as a sweep variable in movies (speed isn't an issue anymore)
+- fix early vsync ticks - probably causing bad checksum - related to buffer_swap returning immediately?
+- refactor SparseNoise experiment
+- nah: use decimal.Decimal for all float InternalParams?
+- rename DriftBar experiment to just Bar, since it doesn't always have to be drifting
+- save to log: all warnings, experiment time estimate, (not text header), end of exp report
+- make a BlankScreen (or whatever) experiment, which you'd run while recording spontaneous activity, instead of running nothing at all and showing the windows desktop. Make the screen brightness a parameter (default to mid gray). You'd end the experiment by hitting a key. This would then stop SURF as well, as usual.
+- add PIXPERDEG and DEGPERCM globals and save them in text header?
+- need to disable gamma correction for natural scene movies:
+    - it might be best if each and every script specified whether it needed gamma correction or not, say by setting I.GAMMA to a value, and then making it update with VE
+    - here's the plan: remove gamma (and gamma offset) from internal params, add it as a static param to all experiment scripts, and add it as a field to dimstim.config. Then, most experiments will just pull the value from dimstim.config, and the rest (like nat scene movies) will set it to None or 0. Then, sometime before the experiment begins (in self.createstimuli()?), this value needs to be set via visionegg. Sounds like it's straightforward: just set VisionEgg.config.VISIONEGG_GAMMA_SOURCE = 'invert' or 'None' (or is it 'none'?) and VISIONEGG_GAMMA_INVERT_RED, GREEN, BLUE = value
+        - need to worry about the log entry VE makes regarding gamma
+        - looks like there's 2 defs for set_gamma_ramp in ve.Core.Screen
+- make system speaker beep on dropped vsync
+- mouse cursor visible on 2nd screen in ManBar - pyglet bug? fixed in rev 138 by changing fullscreen initing
+- position user manbar window in pyglet in exactly the same place each time. That way, you can mark RF positions on screen fairly reliably
+- mangrating! - vary tfreq and sfreq and phase and pos and ori
+- modify and test code to post MAXPOSTABLEINT to port during preexp, postexp, postsweep, and postmovie delays
+- test running multiple experiments by consecutively importing them from within a python script. Any risk to doing this, since python doesn't restart in between experiments?
+    - works, but annoying because you can't import .py files with dashes in them, like MVI_1406-1410.py, and I don't feel like converting the dashes to underscores. Batch files are fine. Easier to exit out of them too.
+- shuffle mseqs to get rid of perceivable motion?
+- microsaccades
+- update to latest DT-Open Layers drivers and test (currently have dt340k.sys ver 6.7.0.0 (2005 era), latest dt340k.sys is ver 6.7.4.1 (2007 era)
+    - ver 6.7.0.0 has bug in allowing you to release the same subsystem as many times as you like without raising an invalid subsystem error. ver 6.7.4.1 doesn't have this bug
+- BIG BUG: xorigDeg and yorigDeg manbar params aren't being saved as InternalParams to textheader, although they are being saved to the NVS header. maybe best thing would be to, instead of making xposDeg and yposDeg for each stim relative to origDeg, make each one load directly from dc.get('Manbar0', 'xorigDeg')
+    - ah, origDeg should be added as a StaticParam to all experiment scripts, and should always load from dc.get('Manbar0', 'xorigDeg') and dc.get('Manbar0', 'yorigDeg')
+        - but code in neuropy.Experiment seems to already assume that all expriment objects already have static.xorigDeg parameters, even though they don't seem to, at least not in the textheaders
+        - ah, StaticParams are init'd with xorigDeg and yorigDeg params set to None. These same named params are set based on manbar params as Experiment.xorigDeg and Experiment.yorigDeg in Experiment.build() - these should really be set to the StaticParams object I guess, instead of the Experiment object? This would match the assumption I made ahead of time in neuropy.BaseExperiment.load()
+        - aha, e.static.xorigDeg and e.static.yorigDeg are properly set from the dimstim config in Experiment.__init__ - they're done there instead of in the textheader because they're always the same from each experiment script, but the downfall is that because it isn't in the script, it doesn't end up in the textheader
+    - update dimstim.__version__ to 0.19 to indicate the change, and represent the first cat that will have it: ptc19
