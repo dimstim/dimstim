@@ -4,7 +4,7 @@ stimuli with high temporal precision. It relies heavily on the
 
 Much of the behaviour and many of the features are based on Display, a DOS-based (Fortran)
 stimulus program that [Nicholas Swindale](http://swindale.ecc.ubc.ca) developed. Keith Godfrey
-wrote the DT.c extension for interfacing with Data Translations digital output boards. Tim
+wrote the `DT.c` extension for interfacing with Data Translations digital output boards. Tim
 Blanche developed the companion acquisition software "Surf", and much of the functionality of
 dimstim and its interoperability with Surf came about with his help.
 
@@ -20,6 +20,11 @@ dimstim depends on most or all of the following Python packages:
 * [pyglet](http://www.pyglet.org)
 * [PyOpenGL](http://pyopengl.sourceforge.net)
 * [VisionEgg](http://visionegg.org)
+
+Right now, dimstim requires a specific revision of VisionEgg, rev 1413, in order to run
+properly. This is due to a switch to using pyglet for window initialization and positioning.
+You can get [http://github.com/visionegg/visionegg/tarball/tags/svn/r1413](VisionEgg rev 1413
+here).
 
 If you want to use a Data Translations board for digital output, you'll need to have DT's Open
 Layers libraries installed. If you're installing from source and you want to use your DT
