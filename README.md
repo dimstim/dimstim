@@ -2,7 +2,7 @@
 stimuli with high temporal precision. It relies heavily on the
 [VisionEgg](http://visionegg.org) library.
 
-Much of the behaviour and many of the features are based on Display, a DOS-based (Fortran)
+Much of the behaviour and many of the features are based on "Display", a DOS-based (Fortran)
 stimulus program that [Nicholas Swindale](http://swindale.ecc.ubc.ca) developed. Keith Godfrey
 wrote the `DT.c` extension for interfacing with Data Translations digital output boards. Tim
 Blanche developed the companion acquisition software "Surf", and much of the functionality of
