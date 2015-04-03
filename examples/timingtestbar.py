@@ -18,7 +18,9 @@ s.orioff = dc.get('Manbar0', 'orioff')
 # screen gamma: None, or single value, or 3-tuple
 s.gamma = dc.get('Screen', 'gamma')
 
-"""Dynamic parameters can potentially vary from one sweep to the next. If a dynamic parameter is assigned multiple values in a sequence, it's treated as a Variable, and has to be added to this Experiment's Variables object"""
+"""Dynamic parameters can potentially vary from one sweep to the next. If a dynamic parameter
+is assigned multiple values in a sequence, it's treated as a Variable, and has to be added to
+this Experiment's Variables object"""
 
 # bar orientation relative to orioff (deg)
 d.ori = 0 #range(0, 360, 30)
@@ -44,7 +46,7 @@ d.sweepSec = 0.025
 d.postsweepSec = 0
 
 vs = Variables()
-vs.brightness = Variable(vals=d.brightness, dim=0, shuffle=False) # kwargs: vals, dim, shuffle, random
+vs.brightness = Variable(vals=d.brightness, dim=0, shuffle=False)
 #vs.bgbrightness = Variable(vals=d.bgbrightness, dim=1, shuffle=True)
 
 runs = Runs(n=20, reshuffle=False)

@@ -28,7 +28,9 @@ s.mask = None
 # screen gamma: None, or single value, or 3-tuple
 s.gamma = dc.get('Screen', 'gamma')
 
-"""Dynamic parameters can potentially vary from one sweep to the next. If a dynamic parameter is assigned multiple values in a sequence, it's treated as a Variable, and has to be added to this Experiment's Variables object"""
+"""Dynamic parameters can potentially vary from one sweep to the next. If a dynamic parameter
+is assigned multiple values in a sequence, it's treated as a Variable, and has to be added to
+this Experiment's Variables object"""
 
 # grating orientation relative to orioff (deg)
 d.ori = range(0, 360, 30)

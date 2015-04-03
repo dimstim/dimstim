@@ -26,7 +26,9 @@ s.heightDeg = s.ncellshigh * 5 #dc.get('Manbar0', 'heightDeg')
 # screen gamma: None, or single value, or 3-tuple
 s.gamma = dc.get('Screen', 'gamma')
 
-"""Dynamic parameters can potentially vary from one sweep to the next. If a dynamic parameter is assigned multiple values in a sequence, it's treated as a Variable, and has to be added to this Experiment's Variables object"""
+"""Dynamic parameters can potentially vary from one sweep to the next. If a dynamic parameter
+is assigned multiple values in a sequence, it's treated as a Variable, and has to be added to
+this Experiment's Variables object"""
 
 # index of cell horizontal position (origin at left)
 d.xi = range(s.ncellswide)
@@ -50,9 +52,8 @@ d.sweepSec = 0.5
 d.postsweepSec = 0
 
 vs = Variables()
-#vs.xposDeg = Variable(vals=d.xposDeg, dim=-1, shuffle=False) # kwargs: vals, dim, shuffle, random
-vs.ori = Variable(vals=d.ori, dim=-1, shuffle=False)
-vs.xi = Variable(vals=d.xi, dim=0, shuffle=False) # kwargs: vals, dim, shuffle, random
+vs.ori = Variable(vals=d.ori, dim=-1, shuffle=False) # kwargs: vals, dim, shuffle, random
+vs.xi = Variable(vals=d.xi, dim=0, shuffle=False)
 vs.yi = Variable(vals=d.yi, dim=1, shuffle=False)
 vs.brightness = Variable(vals=d.brightness, dim=2, shuffle=False)
 

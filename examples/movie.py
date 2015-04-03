@@ -29,7 +29,9 @@ s.diameterDeg = 10
 # screen gamma: None, or single value, or 3-tuple
 s.gamma = None
 
-"""Dynamic parameters can potentially vary from one sweep to the next. If a dynamic parameter is assigned multiple values in a sequence, it's treated as a Variable, and has to be added to this Experiment's Variables object"""
+"""Dynamic parameters can potentially vary from one sweep to the next. If a dynamic parameter
+is assigned multiple values in a sequence, it's treated as a Variable, and has to be added to
+this Experiment's Variables object"""
 
 # movie frame indices
 d.framei = range(2**16 - 1) # mseq has 65535 frames, ie 0 to 65534
