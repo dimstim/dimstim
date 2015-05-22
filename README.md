@@ -23,7 +23,7 @@ dimstim depends on most or all of the following Python packages:
 
 Right now, dimstim requires a specific revision of VisionEgg, rev 1413, in order to run
 properly. This is due to a switch to using pyglet for window initialization and positioning.
-You can get [http://github.com/visionegg/visionegg/tarball/tags/svn/r1413](VisionEgg rev 1413
+You can get it at [http://github.com/visionegg/visionegg/tarball/tags/svn/r1413](VisionEgg rev 1413
 here).
 
 If you want to use a Data Translations board for digital output, you'll need to have DT's Open
@@ -78,7 +78,7 @@ In manbar and mangrating:
   degrees, left and right mouse buttons finely tune the ori
 * horizontal cursor keys control bar width, vertical cursor keys control bar height
 * `NUMPAD5` centers the bar and sets it to ori = 0
-* `END` toggles "squarelock" on and off - this locks the width and the height together
+* `END` toggles "squarelock" on and off -- this locks the width and the height together
 * `ENTER` saves the current position, size, and ori as `Manbar1`, `RSHIFT` saves as
   `Manbar2`
 * `1` and `2` recall `Manbar1` and `Manbar2` states, as do `NUMPAD1` and `NUMPAD2`
