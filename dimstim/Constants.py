@@ -179,9 +179,6 @@ TAB = '    ' # 4 spaces
 
 CONFIGFNAME = os.path.join(dimstim.__path__[0], 'dimstim.cfg') # dimstim config filename
 
-# Digital output status bits. These are found on Port D on the DataWave panel
-RUN = 0x00040000 # run bit. Called displayrunning in Surf, needs to be high before Surf listens to any other digital line
-
 # Maximum postable integer, 65535 for 16 digital lines. These correspond to Ports A and B on
 # the DT340 (see DT.c):
 MAXPOSTABLEINT = 0x0000ffff
