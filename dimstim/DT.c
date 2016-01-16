@@ -353,6 +353,10 @@ PyObject * DT_postInt16NoDelay(PyObject *self, PyObject *args)
     }
     incChecksum(val);
     post((s_val & 0xffff0000) | (val & 0x0000ffff));
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
 // Posts an int32 to port, followed by a snooze to ensure the acquistion computer sees it
 PyObject * DT_postInt32(PyObject *self, PyObject *args)
 {
