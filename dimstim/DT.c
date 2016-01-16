@@ -417,7 +417,8 @@ PyObject * DT_postString(PyObject *self, PyObject *args)
     char * val;
     char * car;
     short * ar;
-    int numchars = 0, i, pass = 0;
+    int numchars = 0;
+    int i;
     if (!PyArg_ParseTuple (args, "si", &val, &numchars))
     {
         puts("Error occured parsing arguments in postString");
