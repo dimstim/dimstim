@@ -88,7 +88,7 @@ void PrintSubSystems(); // prints quantity of channels available
 BOOL __export FAR PASCAL GetDriver(LPSTR  lpszName, LPSTR  lpszEntry, LPARAM lParam);
 
 /* End of type definitions? */
-/*-----------------------------------------------------------------------
+/*-----------------------------------------------------------------------*/
 
 
 /* Local functions, not visible in Python */
@@ -104,7 +104,7 @@ void snooze()
     s_snooze &= 0x00ffffff; // keep s_snooze as a 24 bit int with overflow, but why? shouldn't this be inside the snooze loop then?
 }
 
-// Posts a value to port, taking into account the toggle mask and the bitshift size for
+// Posts a value to port, taking into account the toggle mask and the bitshift size
 void post(long val)
 {
     int ecode;
