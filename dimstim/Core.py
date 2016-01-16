@@ -38,7 +38,7 @@ import numpy as np
 np.seterr(all='raise') # raise all numpy errors (like 1/0), don't just warn
 
 import Constants as C # keep namespace clean
-from Constants import DATA, RUN, REFRESH, NAN, TAB, I, dc # dc could be required in eval in TextHeader.build()
+from Constants import RUN, REFRESH, NAN, TAB, I, dc # dc could be required in eval in TextHeader.build()
 
 if I.DTBOARDINSTALLED:
     import DT

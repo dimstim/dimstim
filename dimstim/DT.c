@@ -95,8 +95,8 @@ BOOL __export FAR PASCAL GetDriver(LPSTR  lpszName, LPSTR  lpszEntry, LPARAM lPa
 
 /* Local functions, not visible in Python */
 
-// pauses for s_snoozetime number of loops, this ensures that SURF has enough time
-// to catch the value on the port, before it possibly changes (currently, SURF runs
+// pauses for s_snoozetime number of loops, this ensures that acquisition has enough time
+// to catch the value on the port, before it possibly changes (currently, acquisition runs
 // at 25KHz sampling -> 40us sample interval)
 void snooze()
 {

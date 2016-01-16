@@ -238,14 +238,12 @@ class Experiment(object):
         self.stopdatetime = datetime.datetime.now()
         # time-critical stuff ends here
 
-        # Send the Experiment checksum and close the board
+        # clear the port, print the Experiment checksum, close the board:
         if I.DTBOARDINSTALLED:
-            DT.postInt16NoDelay(0) # clear the value on the port, no delay
+            DT.postInt32NoDelay(0) # clear the value on the port, no delay
             self.checksum = DT.getChecksum()
-            DT.postInt16NoDelay(self.checksum) # post the value, no delay
+            print("checksum: %d" % self.checksum)
             DT.setChecksum(0) # reset DT module's checksum variable
-            DT.toggleBits(C.DATA) # toggle data bit to trigger Surf, delay
-            DT.clearBitsNoDelay(0x00ffffff) # clear all bits (including run bit) low, no delay
             DT.closeBoard()
 
         # Close OpenGL graphics screen (necessary when running from Python interpreter)
