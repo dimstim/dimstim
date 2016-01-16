@@ -38,7 +38,7 @@ static long     s_snooze = 0;
 //static long     s_snoozetime = 15000; // this amounts to ~60us on a P4 1.8GHz
 static long     s_snoozetime = 110000; // this amounts to ~50us on a Core2 Duo 2.4GHz
 static long     s_val = 0; // global var that monitors the current 32 bit value on the port
-static long     s_bitShiftSize = 8; // number of bits to shift everything up by before posting to the board,
+static long     s_bitShiftSize = 0; // number of bits to shift everything up by before posting to the board,
                                     // used due to wiring eccentricities of Datawave panel
 
 /* hardware interface */
