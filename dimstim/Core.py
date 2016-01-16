@@ -723,6 +723,7 @@ class VsyncTimer(object):
         self.drops = [] # list of (index, time, interval) tuples of dropped vsyncs
         self.dropthresh = dropthresh
         self.n = 0 # vsync count
+
     def tick(self):
         """Declare a vsync has just been drawn"""
         now = time.clock()
@@ -730,8 +731,11 @@ class VsyncTimer(object):
         if self.last != None:
             IVI = now - self.last # most recent inter vsync interval
             if IVI > self.dropthresh: # vsync has been dropped
-                self.drops.append((self.n-1, now, IVI)) # use count - 1 to get 0-based index of vsync that was dropped
-                winsound.Beep(4000, 1) # system beep. cross-platform: print '\a' # , but that's a long one that creates lag
+                # use count - 1 to get 0-based index of vsync that was dropped"
+                self.drops.append((self.n-1, now, IVI))
+                # Generate system beep. cross-platform method is print '\a' # , but that's a
+                # long beep that creates lag:
+                winsound.Beep(4000, 1)
             index = int(math.ceil(IVI*1000/self.binwidth)) - 1
             if index > (len(self.hist)-1):
                 index = -1
@@ -744,11 +748,13 @@ class VsyncTimer(object):
         else:
             self.first = now
         self.last = now # set for next vsync
+
     def avgIVI(self):
         """Get average IVI"""
         if self.last == None:
             raise RuntimeError("No vsyncs were drawn, cannot calculate average IVI")
         return (self.last - self.first) / sum(self.hist)
+
     def runavgIVI(self):
         """Get running average IVI"""
         IVIs = []
@@ -757,6 +763,7 @@ class VsyncTimer(object):
                 IVIs.append(IVI)
         if len(IVIs) >= 2:
             return (IVIs[-1] - IVIs[0]) / len(IVIs)
+
     def pprint(self):
         """Return timing histogram"""
         maxnhistlines = 10
@@ -766,7 +773,8 @@ class VsyncTimer(object):
             s.write('%d ticks recorded\n' % nticks)
             return
         avgIVI = self.avgIVI()
-        s.write('%d ticks recorded, %.3f tps, (min, mean, max) deltatick: (%.2f, %.2f, %.2f) ms\n'
+        s.write('%d ticks recorded, %.3f tps, (min, mean, max) deltatick: '
+                '(%.2f, %.2f, %.2f) ms\n'
                  % (nticks, 1/avgIVI, self.minIVI*1000, avgIVI*1000, self.maxIVI*1000))
         hist = self.hist # shorthand
         maxhist = float(max(hist))
@@ -812,8 +820,8 @@ def intround(n):
 
 def deg2pix(deg):
     """Convert from degrees of visual space to pixels"""
-    # shouldn't I be using opp = 2.0 * distance * tan(deg/2), ie trig instead of solid angle of a circle ???!!
-    # make it a one-liner, break it up into multiple lines in the docstring
+    # shouldn't I be using opp = 2.0 * distance * tan(deg/2), ie trig instead of solid angle
+    # of a circle ???!!
     if deg == None:
         deg = 0 # convert to an int
     rad = deg * math.pi / 180 # float, angle in radians
@@ -857,7 +865,8 @@ def msec2vsync(msec):
 def sec2intvsync(sec):
     """Convert from sec to an integer number of vsyncs"""
     vsync = intround(sec2vsync(sec))
-    # prevent rounding down to 0 vsyncs. This way, even the shortest time interval in sec will get you at least 1 vsync
+    # prevent rounding down to 0 vsyncs. This way, even the shortest time interval in sec
+    # will get you at least 1 vsync
     if vsync == 0 and sec != 0:
         vsync = 1
     return vsync # int
@@ -865,7 +874,8 @@ def sec2intvsync(sec):
 def msec2intvsync(msec):
     """Convert from msec to an integer number of vsyncs"""
     vsync = intround(msec2vsync(msec))
-    # prevent rounding down to 0 vsyncs. This way, even the shortest time interval in msec will get you at least 1 vsync
+    # prevent rounding down to 0 vsyncs. This way, even the shortest time interval in msec
+    # will get you at least 1 vsync
     if vsync == 0 and msec != 0:
         vsync = 1
     return vsync # int
@@ -907,7 +917,8 @@ def cycDeg2cycPix(cycDeg):
         return 0.0 # float
 
 def isotime(sec, ndec=6):
-    """Convert from sec to ISO HH:MM:SS[.mmmmmm] format, rounds to ndec number of decimal digits"""
+    """Convert from sec to ISO HH:MM:SS[.mmmmmm] format, rounds to ndec number of decimal
+    digits"""
     h = int(sec / 3600)
     m = int(sec % 3600 / 60)
     s = int(sec % 3600 % 60)
@@ -974,8 +985,8 @@ def shuffle(seq):
     return random.sample(seq, len(seq))
 '''
 def shuffle(seq):
-    """Take a sequence and return a shuffled (without replacement) copy.
-    Its only benefit over np.random.shuffle is that it returns a copy instead of shuffling in-place"""
+    """Take a sequence and return a shuffled (without replacement) copy. Its only benefit over
+    np.random.shuffle is that it returns a copy instead of shuffling in-place"""
     result = copy(seq)
     np.random.shuffle(result) # shuffles in-place, doesn't convert to an array
     return result
@@ -1017,8 +1028,10 @@ def microsaccades(driftstd=0.05, thresh=0.25, shape=(2, 300)):
     pos = np.zeros(shape)
     for ti in xrange(1, nt):
         for dim in range(ndims):
-            pos[dim, ti] = pos[dim, ti-1] + deltas[dim][ti] # add drift noise to previous position
-            if cartdist(pos[dim, ti], [0]*ndims) > thresh: # if we've drifted past thresh distance from origin
+            # add drift noise to previous position:
+            pos[dim, ti] = pos[dim, ti-1] + deltas[dim][ti]
+            if cartdist(pos[dim, ti], [0]*ndims) > thresh:
+                # we've drifted past thresh distance from origin
                 #print ti, cartdist(pos[dim, ti], [0]*ndims)
                 pos[:, ti] = 0 # reset position of all dimensions
                 break # out of dim loop
