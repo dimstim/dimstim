@@ -45,8 +45,8 @@ static long     s_bitShiftSize = 0; // number of bits to shift everything up by 
 
 PyObject * DT_initBoard(PyObject *self);
 PyObject * DT_closeBoard(PyObject *self);
-PyObject * DT_postInt16(PyObject *self, PyObject *args);   // rename to postInt16Delay??
-PyObject * DT_postInt16NoDelay(PyObject *self, PyObject *args); // rename to postInt16??
+PyObject * DT_postInt16(PyObject *self, PyObject *args);
+PyObject * DT_postInt16NoDelay(PyObject *self, PyObject *args);
 PyObject * DT_postInt32(PyObject *self, PyObject *args);
 PyObject * DT_postInt32NoDelay(PyObject *self, PyObject *args);
 PyObject * DT_postInt32_2x16(PyObject *self, PyObject *args);
@@ -399,7 +399,7 @@ PyObject * DT_postInt32_2x16(PyObject *self, PyObject *args)
     long val, low, high;
     if (!PyArg_ParseTuple (args, "i", &val))
     {
-        puts("Error occured parsing arguments in postInt32");
+        puts("Error occured parsing arguments in postInt32_2x16");
         arglist = Py_BuildValue("i", -1);
         Py_INCREF(arglist);
         return arglist;
@@ -517,8 +517,7 @@ PyObject * DT_toggleBitsOnPost(PyObject *self, PyObject *args)
 PyObject * DT_setBits(PyObject *self, PyObject *args)
 {
     PyObject *arglist;
-    int mask = 0; // WHY IS MASK AN INT?? I don't know. Why not?
-
+    int mask = 0;
     if (!PyArg_ParseTuple (args, "i", &mask))
     {
         puts("Error occured parsing arguments in setBits");
@@ -553,8 +552,7 @@ PyObject * DT_setBitsNoDelay(PyObject *self, PyObject *args)
 PyObject * DT_clearBits(PyObject *self, PyObject *args)
 {
     PyObject *arglist;
-    int mask = 0; // WHY IS MASK AN INT?? I don't know. Why not?
-
+    int mask = 0;
     if (!PyArg_ParseTuple (args, "i", &mask))
     {
         puts("Error occured parsing arguments in clearBits");
@@ -572,8 +570,7 @@ PyObject * DT_clearBits(PyObject *self, PyObject *args)
 PyObject * DT_clearBitsNoDelay(PyObject *self, PyObject *args)
 {
     PyObject *arglist;
-    int mask = 0; // WHY IS MASK AN INT?? I don't know. Why not?
-
+    int mask = 0;
     if (!PyArg_ParseTuple (args, "i", &mask))
     {
         puts("Error occured parsing arguments in clearBitsNoDelay");
