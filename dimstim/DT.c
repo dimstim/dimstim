@@ -121,6 +121,7 @@ void post(long val)
     {
         //printf("Error writing to port (%d)\n", ecode); // comment out to reduce printing to screen when board not installed
     }
+    printf("%ld\n", val);
 }
 
 void incChecksum(long val)
@@ -390,7 +391,6 @@ PyObject * DT_postInt32NoDelay(PyObject *self, PyObject *args)
     }
     incChecksum(val);
     post(val & 0xffffffff);
-    printf("%ld\n", val);
 
     Py_INCREF(Py_None);
     return Py_None;
