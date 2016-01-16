@@ -47,7 +47,7 @@ PyObject * DT_initBoard(PyObject *self);
 PyObject * DT_closeBoard(PyObject *self);
 PyObject * DT_postInt16(PyObject *self, PyObject *args);   // rename to postInt16Delay??
 PyObject * DT_postInt16NoDelay(PyObject *self, PyObject *args); // rename to postInt16??
-PyObject * DT_postInt32(PyObject *self, PyObject *args);
+PyObject * DT_postInt32_2x16(PyObject *self, PyObject *args);
 PyObject * DT_postFloat(PyObject *self, PyObject *args);
 PyObject * DT_postString(PyObject *self, PyObject *args);
 
@@ -189,7 +189,7 @@ static PyMethodDef DT_methods[] = {
             METH_VARARGS, "Posts an int16 to port, followed by a snooze to ensure the acquistion computer sees it"},
     {"postInt16NoDelay", (PyCFunction) DT_postInt16NoDelay,
             METH_VARARGS, "Posts an int16 to port, followed by no delay"},
-    {"postInt32", (PyCFunction) DT_postInt32,
+    {"postInt32_2x16", (PyCFunction) DT_postInt32_2x16,
             METH_VARARGS, "Posts an int32 to port by posting two 16 bit chunks sequentially,\n"
                           "each followed by a snooze to ensure acquistion computer sees it"},
     {"postFloat", (PyCFunction) DT_postFloat,
@@ -353,7 +353,7 @@ PyObject * DT_postInt16NoDelay(PyObject *self, PyObject *args)
 }
 // Posts an int32 to port by posting two 16 bit chunks sequentially,
 // each followed by a snooze to ensure the acquistion computer sees it
-PyObject * DT_postInt32(PyObject *self, PyObject *args)
+PyObject * DT_postInt32_2x16(PyObject *self, PyObject *args)
 {
     PyObject *arglist;
     long val, low, high;

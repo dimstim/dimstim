@@ -417,7 +417,7 @@ class Header(object):
         # Post the NVS header
         for val in self.NVS.data:
             if val == NAN:
-                DT.postInt32(val) # post single float NaN code using Int32, SURF interprets it as a float
+                DT.postInt32_2x16(val) # post single float NaN code using Int32, SURF interprets it as a float
             else:
                 DT.postFloat(val)
         # Post the text header
@@ -431,7 +431,7 @@ class Header(object):
         if len(toiter(gamma)) == 1: # it's a single value
             DT.postFloat(gamma or 0.0) # gamma might be None
         else: # it's a 3-sequence, can't fit that here, post NaN
-            DT.postInt32(NAN) # post single float NaN code using Int32, SURF interprets it as a float
+            DT.postInt32_2x16(NAN) # post single float NaN code using Int32, SURF interprets it as a float
         DT.postFloat(0.0) # gamma offset
         DT.postInt16(self.intsec) # Surf expects an int for this one
         # Get, post, and reset header checksum
