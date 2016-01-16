@@ -181,7 +181,6 @@ CONFIGFNAME = os.path.join(dimstim.__path__[0], 'dimstim.cfg') # dimstim config 
 
 # Digital output status bits. These are found on Port D on the DataWave panel
 RUN = 0x00040000 # run bit. Called displayrunning in Surf, needs to be high before Surf listens to any other digital line
-REFRESH = 0x00080000 # refresh bit. Called frametoggle in Surf, needs to be toggled to signal new frame-related data on port, only read by Surf if a valid header was sent. Isn't used if the vsync signal from the video card has been wired as the refresh bit instead (in which case Surf looks for an up-down strobe instead of a toggle)
 
 # Maximum postable integer, 65535 for 16 digital lines. These correspond to Ports A and B on
 # the DT340 (see DT.c):
