@@ -40,7 +40,6 @@ class SparseNoise(Experiment):
     def build(self):
         """Builds the SweepTable and the Header for this Experiment"""
         super(SparseNoise, self).build()
-        self.header.NVS.data[C.STT_STS] = 11 # enter NVS stimulus code for sparse noise (actually, 'reverse correlation')
 
         self.barWidth = deg2pix(self.static.widthDeg / self.static.ncellswide) # in pix
         self.barHeight = deg2pix(self.static.heightDeg / self.static.ncellshigh) # in pix

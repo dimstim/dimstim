@@ -47,7 +47,6 @@ class Grating(Experiment):
     def build(self):
         """Builds the SweepTable and the Header for this Experiment"""
         super(Grating, self).build()
-        self.header.NVS.data[C.STT_STS] = 1 # enter NVS stimulus code for gratings
 
     def createstimuli(self):
         """Creates the VisionEgg stimuli objects for this Experiment subclass"""

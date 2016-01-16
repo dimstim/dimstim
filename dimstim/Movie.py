@@ -42,7 +42,6 @@ class Movie(Experiment):
         super(Movie, self).build()
         self.load()
         assert max(toiter(self.dynamic.framei)) <= self.nframes-1, 'Frame indices exceed movie size of %d frames' % self.nframes
-        self.header.NVS.data[C.STT_STS] = 16 # enter NVS stimulus code for movies
 
     def load(self, asarray=False, flip=True):
         """Load movie frames"""

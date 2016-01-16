@@ -38,7 +38,7 @@ import numpy as np
 np.seterr(all='raise') # raise all numpy errors (like 1/0), don't just warn
 
 import Constants as C # keep namespace clean
-from Constants import DATA, SWEEP, RUN, REFRESH, NAN, TAB, NVSi, I, dc # dc could be required in eval in TextHeader.build()
+from Constants import DATA, SWEEP, RUN, REFRESH, NAN, TAB, I, dc # dc could be required in eval in TextHeader.build()
 
 if I.DTBOARDINSTALLED:
     import DT
@@ -382,25 +382,11 @@ class SweepTable(object):
 
 
 class Header(object):
-    """Deals with the Surf file header, the NVS header, and the text header"""
+    """Container for the text header. Formerly also held Surf and NVS headers"""
     def __init__(self, experiment):
         """Init the text header"""
         self.experiment = experiment
-        e = self.experiment # synonym
-        '''
-        # init Surf file header
-        self.SURFfileheader = 'DS'
-        self.version = 110 # Header version 1.1
-        # filename of the script that invoked Python, up to LENFNAMEINHEADER chars long
-        self.script = os.path.split(e.script)[-1][:C.LENFNAMEINHEADER]
-
-        # build the NVS header
-        #self.NVS = NVSHeader(experiment=e)
-        '''
-        # build the text header
-        self.text = TextHeader(experiment=e)
-
-        self.intsec = intround(e.sec)
+        self.text = TextHeader(experiment=experiment)
     '''
     def broadcast(self):
         """Send entire stimulus header to Surf.
@@ -441,126 +427,6 @@ class Header(object):
         DT.toggleBitsOnPost(0) # stop toggling data bit on every post
         DT.postInt16(0) # set the port to 0
     '''
-'''
-class NVSHeader(object):
-    """NVS header"""
-    def __init__(self, experiment):
-        self.experiment = experiment
-        self.data = list(np.tile(NAN, C.NVSLENGTH)) # holds the actual float values to send to Surf as the NVS header, init to NaNs
-        self.data[C.STT_LENGTH] = C.NVSLENGTH
-        self.data[C.STT_POFF] = 4
-        self.data[C.STT_VOFF] = 100
-        self.build()
-        self.check()
-
-    def build(self):
-        """Build NVS header from static and dynamic parameters (both constant and variable)"""
-        e = self.experiment # synonym
-
-        # Add some globals to NVS header
-        self.data[C.STT_EYE] = C.NVSEYEDICT[I.EYE] # eye open state, converted to int
-        self.data[C.STT_TOTAL_SWEEPS] = len(e.sweeptable.i) # total number of sweeps in the Experiment
-
-        # Add static and non-variable dynamic params, these are entered into the basic part of the NVS header
-        params = dictattr()
-        params.update(e.static) # add the static parameters to params
-        params.update(e.dynamic) # add the dynamic parameters to params
-        for paramname, paramval in params.iteritems():
-            if paramname not in e.variables.keys(): # param is not a variable
-                # after a while, might put a try/except KeyError here when NVS header is full and we're adding new param types to dimstim with new names, so if the paramname isn't found in NVSi, the param simply won't be entered into the NVS header, which will put the NVS header on the road to deprecation
-                try:
-                    i = NVSi[paramname] # get 0 based index into NVS header
-                    if paramname == 'mask': # convert string description into a number
-                        if paramval == None:
-                            self.data[i] = 0
-                        elif paramval == 'gaussian':
-                            self.data[i] = 1
-                        elif paramval == 'circle':
-                            self.data[i] = 2
-                        else:
-                            raise ValueError, 'Invalid mask type %s for NVS header' % paramval
-                    elif paramval == None:
-                        pass
-                    elif paramval.__class__ == bool:
-                        self.data[i] = int(paramval) # convert boolean to int
-                    elif 'Msec' in paramname: # if this parameter is defined in msec
-                        self.data[i] = paramval / 1000 # convert msec to seconds for NVS header
-                    else:
-                        self.data[i] = paramval
-                except KeyError, eobj:
-                    warning('Non-varying parameter %s will not be entered into NVS header' % eobj)
-
-        # Add Variables. Variables leave their param fields in the basic part of the NVS header as NaNs, since their
-        # values can vary with every sweep. Instead, their values are entered into the multi-dim table portion of the NVS header
-        offset = self.data[C.STT_VOFF] - 1 # 0 based version of STT_VOFF (which is a 1-based index of start to multidim stuff)
-        self.data[offset+C.NVSMAXDIMS] = len(e.variables) # total number of variables
-        vari = 1 # init 1-based variable index, across all dims. 1-based makes calculating offsets easier?
-        for dim in e.sweeptable.dimensions: # NVS header takes up to NVSMAXDIMS dims, but that only affects a couple of fields, don't let it stop us from entering up to NVSMAXVARS variables
-            if dim.dim <= C.NVSMAXDIMS - 1: # for 1st NVSMAXDIMS
-                order = 0
-                if dim.shuffle: order = 1
-                elif dim.random: order = 2
-                self.data[C.STT_ORDER1+dim.dim] = order # set shuffle/random flag state : 0=unshuffled, 1=shuffled, 2=random
-                self.data[offset+dim.dim] = len(dim) # size of dim (number of vals in it)
-            for var in dim.variables: # now, for all variables in this dimension...
-                if vari <= C.NVSMAXVARS: # up to NVSMAXVARS vars can be entered into the NVS header
-                    try:
-                        self.data[offset+10*vari] = NVSi[var.name] + 1 # 1-based NVS parameter code for this var
-                    except KeyError, eobj:
-                        warning('Variable %s will not be entered into NVS header' % eobj)
-                    tableoffset = 100 + C.NVSMAXVALS*vari # relative pointer from offset to table of up to NVSMAXVALS values for this var
-                    self.data[offset+10*vari+1] = tableoffset
-                    # self.data[offset+10*vari+ 2,3,4]: skipping the entries for min, max, step size
-                    self.data[offset+10*vari+5] = 1 # all vals will be taken from the table. min, max, and step size are ignored
-                    self.data[offset+10*vari+6] = dim.dim + 1 # 1-based dimension number for this variable
-
-                    for vali, val in enumerate(var.vals[:C.NVSMAXVALS]): # up to NVSMAXVALS values can be entered into NVS header for each var
-                        if val == None:
-                            raise ValueError, 'Cannot post None value in variable %r' % var.name
-                        if 'Msec' in var.name: # if this var is defined in msec
-                            self.data[offset+tableoffset+vali] = val / 1000 # convert msec to seconds for NVS header
-                        else:
-                            self.data[offset+tableoffset+vali] = val
-                    vari += 1 # inc
-
-        # enter Runs info into NVS
-        if e.runs:
-            self.data[C.STT_RUNS] = e.runs.n
-            self.data[C.STT_RESHUFFLERUNS] = int(e.runs.reshuffle) # convert boolean to int
-
-        # enter BlankSweep info into NVS
-        if e.blanksweeps:
-            self.data[C.STT_BLANKSWEEP] = e.blanksweeps.T # blank sweep period
-            self.data[C.STT_BLANKSWEEPDURATION] = e.blanksweeps.sec # blank sweep duration
-            self.data[C.STT_SHUFFLEBLANKSWEEPS] = int(e.blanksweeps.shuffle) # convert boolean to int
-
-    def check(self):
-        e = self.experiment # synonym
-        assert len(self.data) == C.NVSLENGTH
-        # Check if limits of NVS header have been exceeded, raise warnings
-        # Don't really care, but do it anyway...
-        if len(e.sweeptable.dimensions) > C.NVSMAXDIMS:
-            warning('%d dimensions specified. This exceeds the limit of %d for NVS header' % (len(e.sweeptable.dimensions), C.NVSMAXDIMS))
-        if len(e.variables) > C.NVSMAXVARS:
-            warning('%d variables specified. This exceeds the limit of %d for NVS header' % (len(e.variables), C.NVSMAXVARS))
-        for var in e.variables:
-            if len(var) > C.NVSMAXVALS:
-                warning('Variable %s has length %d. This exceeds the limit of %d for NVS header'
-                         % (var.name, len(var), C.NVSMAXVALS))
-
-    def pprint(self):
-        """Print the NVS header"""
-        print self._pprint()
-
-    def _pprint(self):
-        """Return the NVS header as a string"""
-        f = cStringIO.StringIO() # create a string file-like object, implemented in C, fast
-        f.write('index\tvalue\n')
-        for i, val in enumerate(self.data):
-            if val == NAN: val = 'NaN' # replace NAN int code with a string
-            f.write('%s\t%s\n' % (i, val))
-        return f.getvalue()
-'''
 
 class TextHeader(object):
     """Text header"""
@@ -686,15 +552,7 @@ class TextHeader(object):
         info('TextHeader: replacing script line %d:\n' \
              '%r with:\n' \
              '%r' % (linei+1, line.rstrip('\n'), replacement.rstrip('\n')))
-    '''
-    def check(self):
-        """Check that this TextHeader isn't too long, pad it with the appropriate number of spaces"""
-        if len(self.data) > C.TEXTLENGTH: # check length of text to be posted
-            raise ValueError, 'Length of text header of %d bytes exceeds the fixed postable maximum of %d bytes' % (len(self.data), C.TEXTLENGTH)
-        pad = C.TEXTLENGTH - len(self.data) # how much to pad the text header by
-        self.data += ' '*pad # add the spaces to the end of the text header
-        assert len(self.data) == C.TEXTLENGTH
-    '''
+
     def __str__(self):
         """Return text header with trailing padding stripped"""
         return self.data.rstrip(' ')

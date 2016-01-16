@@ -80,7 +80,7 @@ class Experiment(object):
         self.sec = self.calcduration()
         info('Expected experiment duration: %s' % isotime(self.sec, 6), tolog=False)
 
-        # Build the Surf file header, the NVS header, and the text header
+        # Build the text header
         self.header = Core.Header(experiment=self)
         info('TextHeader.data:', toscreen=False)
         printf2log(str(self.header.text)) # print text header data to log
@@ -223,9 +223,8 @@ class Experiment(object):
         # Create the VsyncTimer
         self.vsynctimer = Core.VsyncTimer()
 
-        # Init DT board and send the entire stimulus (Surf and NVS and text) header
+        # Init DT board
         if I.DTBOARDINSTALLED: DT.initBoard()
-        if I.DTBOARDINSTALLED: self.header.broadcast()
 
         self.quit = False # init quit signal
         self.pause = False # init pause signal

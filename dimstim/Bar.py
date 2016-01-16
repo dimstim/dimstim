@@ -40,7 +40,6 @@ class Bar(Experiment):
     def build(self):
         """Builds the SweepTable and the Header for this Experiment"""
         super(Bar, self).build()
-        self.header.NVS.data[C.STT_STS] = 10 # enter NVS stimulus code for drift bars
 
     def createstimuli(self):
         """Creates the VisionEgg stimuli objects for this Experiment subclass"""

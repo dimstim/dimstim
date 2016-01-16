@@ -37,9 +37,8 @@ class BlankScreen(Experiment):
         self.sweeptable = Core.SweepTable(experiment=self)
         self.sec = 0 # experiment duration
 
-        # Build the Surf file header, the NVS header, and the text header
+        # Build the text header
         self.header = Core.Header(experiment=self)
-        self.header.NVS.data[C.STT_STS] = 10 # enter NVS stimulus code for drift bars, Surf needs something here
         info('TextHeader.data:', toscreen=False)
         printf2log(str(self.header.text)) # print text header data to log
 
