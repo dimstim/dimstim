@@ -277,7 +277,10 @@ PyObject * DT_initBoard(PyObject * self)
         RETURN_ERR(-1);
     }
 
-    /* set subsystem to 2 8bit digital lines (2*8 or 1*16 available) */
+    /* set subsystem to 32 bits of digital output (ports A, B, C & D). Port A line 0 is LSB, port B line 7 is MSB.
+    Pinouts on J1 68 pin cable are, from Port A line 0 LSB to port B line 7 MSB:
+    [60, 26, 59, 25, 58, 24, 57, 23, 55, 21, 54, 20, 53, 19, 52]. Pin 56 is a convenient digital ground.
+    See DT340 manual "UM340.pdf" */
     if (olDaSetResolution(hDout, 32) != OLNOERROR)
     {
         puts("Error setting resolution");
