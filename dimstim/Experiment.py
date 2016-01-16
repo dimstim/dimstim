@@ -154,31 +154,23 @@ class Experiment(object):
         and posts postval to the port. Adds ticks to self.vsynctimer"""
         #assert nvsyncs >= 1 # nah, let it take nvsyncs=0 and do nothing and return right away
         vsynci = 0
-        if self.pause and nvsyncs == 0:
-            nvsyncs = 1 # need at least one vsync to get into the while loop and pause the stimulus indefinitely
-        while vsynci < nvsyncs: # need a while loop for pause to work
+        while vsynci < nvsyncs: # originally needed to use a while loop for pause to work
             for event in pygame.event.get(): # for all events in the event queue
                 if event.type == pygame.locals.KEYDOWN:
                     if event.key == pygame.locals.K_ESCAPE:
                         self.quit = True
-                    if event.key == pygame.locals.K_PAUSE:
-                        self.pause = not self.pause # toggle pause
-                        self.paused = True
             if self.quit:
                 break # out of vsync loop
-            if self.pause: # indicate pause to Surf
-                ## TODO: this is incomplete, or pause needs to be removed completely:
-                pass
-            else: # post value to port
-                if I.DTBOARDINSTALLED:
-                    DT.postInt16NoDelay(postval) # post value to port, no delay
-                    self.nvsyncsdisplayed += 1 # increment. Count this as a vsync that Surf has seen
+            # post value to port:
+            if I.DTBOARDINSTALLED:
+                DT.postInt16NoDelay(postval) # post value to port, no delay
+                self.nvsyncsdisplayed += 1 # increment. Count this as a vsync that Surf has seen
             self.screen.clear()
             self.viewport.draw()
             ve.Core.swap_buffers() # returns immediately
             gl.glFlush() # waits for next vsync pulse from video card
             self.vsynctimer.tick()
-            vsynci += int(not self.pause) # don't increment if in pause mode
+            vsynci += 1
 
     def get_framebuffer(self, i):
         """Get the raw frame buffer data that corresponds to what's
@@ -225,8 +217,6 @@ class Experiment(object):
         if I.DTBOARDINSTALLED: DT.initBoard()
 
         self.quit = False # init quit signal
-        self.pause = False # init pause signal
-        self.paused = False # remembers whether this experiment has been paused
         self.nvsyncsdisplayed = 0 # nvsyncs seen by Surf
 
         # time-critical stuff starts here
@@ -265,8 +255,6 @@ class Experiment(object):
         info(self.vsynctimer.pprint())
         info('%d vsyncs displayed, %d sweeps completed' % (self.nvsyncsdisplayed, self.ii))
         info('Experiment duration: %s expected, %s actual' % (isotime(self.sec, 6), isotime(self.stoptime-self.starttime, 6)))
-        if self.paused:
-            warning('dimstim was paused at some point')
         if self.quit:
             warning('dimstim was interrupted before completion')
         else:

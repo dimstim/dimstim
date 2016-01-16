@@ -73,9 +73,6 @@ class BlankScreen(Experiment):
                     if event.type == pygame.locals.KEYDOWN:
                         if event.key == pygame.locals.K_ESCAPE:
                             self.quit = True
-                        if event.key == pygame.locals.K_PAUSE:
-                            self.pause = not self.pause # toggle pause
-                            self.paused = True # remember that a pause happened
                 if self.quit:
                     break # out of vsync loop
                 if I.DTBOARDINSTALLED: DT.postInt16NoDelay(self.postval) # post value to port, no delay

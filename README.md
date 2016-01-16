@@ -68,9 +68,8 @@ board is installed.
 Keyboard controls:
 ------------------
 
-Hit `PAUSE` to pause the experiment after the current sweep/frame is done displaying. Hit
-`ESC` to immediately escape the experiment and any others that are queued to follow it in a
-multiexperiment.
+Hit `ESC` to immediately escape the experiment and any others that are queued to follow it in
+a multiexperiment.
 
 In manbar and mangrating:
 

@@ -81,8 +81,6 @@ TODO:
 
 - increase DIN to 20 bits from 16, leave the last 4 as status bits. This increases max number of unique sweeps to ~ 1 million. Can't use the remaining 8 of the total 32 bits cuz they're used to control the MUX-80
 
-- add a pause status bit, although there wouldn't be room if the DIN was increased to 20 bits
-
 - masks for bars and sparsenoise (both are target stimuli)
 
 - why are the timestamps for the .srf files (specifically cat 15 recording 28 driftbars, 20/03/2005  01:21a) about an hour later than the timestamps in the Cat 15.log file for the corresponding experiment (2005-03-20 00:17:16.656000)? maybe a daylight savings time thing? but Win2k should've switched it on both comps at the same time, no?
