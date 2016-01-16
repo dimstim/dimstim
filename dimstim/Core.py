@@ -384,25 +384,24 @@ class SweepTable(object):
 class Header(object):
     """Deals with the Surf file header, the NVS header, and the text header"""
     def __init__(self, experiment):
-        """Init the Surf file header, the NVS header, and the text header.
-        NVS header values default to NaN unless otherwise set by the caller"""
+        """Init the text header"""
         self.experiment = experiment
         e = self.experiment # synonym
-
+        '''
         # init Surf file header
         self.SURFfileheader = 'DS'
         self.version = 110 # Header version 1.1
         # filename of the script that invoked Python, up to LENFNAMEINHEADER chars long
-        self.script = os.path.split(e.script)[-1][:C.LENFNAMEINHEADER] # needs testing!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        self.script = os.path.split(e.script)[-1][:C.LENFNAMEINHEADER]
 
         # build the NVS header
-        self.NVS = NVSHeader(experiment=e)
-
+        #self.NVS = NVSHeader(experiment=e)
+        '''
         # build the text header
         self.text = TextHeader(experiment=e)
 
         self.intsec = intround(e.sec)
-
+    '''
     def broadcast(self):
         """Send entire stimulus header to Surf.
         Assumes that a DT board has already been initialized"""
@@ -441,8 +440,8 @@ class Header(object):
         # Shutdown broadcast
         DT.toggleBitsOnPost(0) # stop toggling data bit on every post
         DT.postInt16(0) # set the port to 0
-
-
+    '''
+'''
 class NVSHeader(object):
     """NVS header"""
     def __init__(self, experiment):
@@ -561,7 +560,7 @@ class NVSHeader(object):
             if val == NAN: val = 'NaN' # replace NAN int code with a string
             f.write('%s\t%s\n' % (i, val))
         return f.getvalue()
-
+'''
 
 class TextHeader(object):
     """Text header"""
@@ -569,7 +568,7 @@ class TextHeader(object):
         self.experiment = experiment
         self.data = '' # holds the actual string to send to Surf as the text header
         self.build()
-        self.check()
+        #self.check()
 
     def build(self):
         """Build the text header, mostly from the text of the script"""
@@ -687,7 +686,7 @@ class TextHeader(object):
         info('TextHeader: replacing script line %d:\n' \
              '%r with:\n' \
              '%r' % (linei+1, line.rstrip('\n'), replacement.rstrip('\n')))
-
+    '''
     def check(self):
         """Check that this TextHeader isn't too long, pad it with the appropriate number of spaces"""
         if len(self.data) > C.TEXTLENGTH: # check length of text to be posted
@@ -695,7 +694,7 @@ class TextHeader(object):
         pad = C.TEXTLENGTH - len(self.data) # how much to pad the text header by
         self.data += ' '*pad # add the spaces to the end of the text header
         assert len(self.data) == C.TEXTLENGTH
-
+    '''
     def __str__(self):
         """Return text header with trailing padding stripped"""
         return self.data.rstrip(' ')

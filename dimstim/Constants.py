@@ -185,12 +185,14 @@ SWEEP = 0x00020000 # sweep bit. Called displaysweep in Surf, positive edge signa
 RUN = 0x00040000 # run bit. Called displayrunning in Surf, needs to be high before Surf listens to any other digital line
 REFRESH = 0x00080000 # refresh bit. Called frametoggle in Surf, needs to be toggled to signal new frame-related data on port, only read by Surf if a valid header was sent. Isn't used if the vsync signal from the video card has been wired as the refresh bit instead (in which case Surf looks for an up-down strobe instead of a toggle)
 
-MAXPOSTABLEINT = 0x0000ffff # Maximum postable integer, 65535 for 16 digital lines. These are found on Ports B and C on the DataWave panel. Port A is used by Surf to control the MUX-80
-NVSMAXDIMS = 3 # Maximum number of dimensions allowed in NVS header
-NVSMAXVARS = 10 # Maximum total number of variables across all dimensions allowed in NVS header
-NVSMAXVALS = 50 # Maximum number of values allowed per variable in NVS header
-NVSLENGTH = 749 # number of real valued entries in NVS header
-TEXTLENGTH = 50000 # fixed number of characters that have to be posted as the text header, this number has to be a multiple of 2
+# Maximum postable integer, 65535 for 16 digital lines. These correspond to Ports A and B on
+# the DT340 (see DT.c):
+MAXPOSTABLEINT = 0x0000ffff
+#NVSMAXDIMS = 3 # Maximum number of dimensions allowed in NVS header
+#NVSMAXVARS = 10 # Maximum total number of variables across all dimensions allowed in NVS header
+#NVSMAXVALS = 50 # Maximum number of values allowed per variable in NVS header
+#NVSLENGTH = 749 # number of real valued entries in NVS header
+#TEXTLENGTH = 50000 # fixed number of characters that have to be posted as the text header, this number has to be a multiple of 2
 assert TEXTLENGTH % 2 == 0, 'Fixed text header length agreed upon with Surf has to be a multiple of 2'
 
 LENFNAMEINHEADER = 64
@@ -198,7 +200,7 @@ LENFNAMEINHEADER = 64
 NAN = 0x7fffffff # one of the many possible hex values that code for single float IEEE standard 754 NaN (quiet NaN)
 
 WARNINGDELAY = 1 # mostly deprecated, time in sec to delay execution when a warning is printed to screen
-
+'''
 # 0-based indices into NVS header of floats
 STT_LENGTH = 0 # table length (749)
 STT_POFF = 1 # index to parameter list (4)
@@ -358,7 +360,7 @@ NVSi = {
     'contrast':GR_CON, # grating contrast (0-1), if >> 1 get square grating, if < 0 get contrast reversal
     'contrast2':GR_CON2, # 2nd grating contrast (0-1), if >> 1 get square grating, if < 0 get contrast reversal
 }
-
+'''
 
 class Printer(object):
     """Print to screen and/or VisionEgg log, with either INFO or WARNING level, or just raw"""
