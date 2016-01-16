@@ -14,7 +14,7 @@ from VisionEgg.Gratings import SinGrating2D
 from VisionEgg.Textures import Mask2D
 
 import Constants as C
-from Constants import I, SWEEP
+from Constants import I
 import Core
 from Core import sec2intvsync, cycDeg2cycPix, cycSec2cycVsync, deg2pix, toiter
 try:
@@ -141,7 +141,6 @@ class Grating(Experiment):
             self.updateparams(i)
 
             # Set sweep bit high, do the sweep
-            if I.DTBOARDINSTALLED: DT.setBitsNoDelay(SWEEP) # set sweep bit high, no delay
             for vsynci in xrange(self.nvsyncs): # nvsyncs depends on if this is a blank sweep or not
                 for event in pygame.event.get(): # for all events in the event queue
                     if event.type == pygame.locals.KEYDOWN:

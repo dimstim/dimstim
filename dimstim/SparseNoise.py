@@ -14,7 +14,7 @@ import VisionEgg.Core
 from VisionEgg.MoreStimuli import Target2D
 
 import Constants as C
-from Constants import I, SWEEP
+from Constants import I
 import Core
 from Core import sec2intvsync, degSec2pixVsync, deg2pix
 try:
@@ -110,7 +110,6 @@ class SparseNoise(Experiment):
             self.updateparams(i)
 
             # Set sweep bit high, do the sweep
-            if I.DTBOARDINSTALLED: DT.setBitsNoDelay(SWEEP) # set sweep bit high, no delay
             for vsynci in xrange(self.nvsyncs): # nvsyncs depends on if this is a blank sweep or not
                 for event in pygame.event.get(): # for all events in the event queue
                     if event.type == pygame.locals.KEYDOWN:

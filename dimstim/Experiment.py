@@ -15,7 +15,7 @@ import VisionEgg.Core # isn't imported automatically by VE's __init__.py
 from VisionEgg.MoreStimuli import Target2D
 
 import Constants as C
-from Constants import I, SWEEP
+from Constants import I
 import Core
 from Core import iterable, toiter, deg2pix, sec2intvsync, vsync2sec, isotime
 try:
@@ -154,7 +154,6 @@ class Experiment(object):
         and posts postval to the port. Adds ticks to self.vsynctimer"""
         #assert nvsyncs >= 1 # nah, let it take nvsyncs=0 and do nothing and return right away
         vsynci = 0
-        if I.DTBOARDINSTALLED: DT.setBitsNoDelay(SWEEP) # set sweep bit high, no delay. Should this be set? If it isn't, Surf detects that we're in pause mode. Does it collect whatever's on the port when it's in pause mode, ie will it see the 65535s? I doubt it. Probably have to set this high, then set it back low before returning
         if self.pause and nvsyncs == 0:
             nvsyncs = 1 # need at least one vsync to get into the while loop and pause the stimulus indefinitely
         while vsynci < nvsyncs: # need a while loop for pause to work
@@ -168,10 +167,10 @@ class Experiment(object):
             if self.quit:
                 break # out of vsync loop
             if self.pause: # indicate pause to Surf
-                if I.DTBOARDINSTALLED: DT.clearBitsNoDelay(SWEEP) # clear sweep bit low, no delay
+                ## TODO: this is incomplete, or pause needs to be removed completely:
+                pass
             else: # post value to port
                 if I.DTBOARDINSTALLED:
-                    DT.setBitsNoDelay(SWEEP) # make sure it's high
                     DT.postInt16NoDelay(postval) # post value to port, no delay
                     self.nvsyncsdisplayed += 1 # increment. Count this as a vsync that Surf has seen
             self.screen.clear()
@@ -180,7 +179,6 @@ class Experiment(object):
             gl.glFlush() # waits for next vsync pulse from video card
             self.vsynctimer.tick()
             vsynci += int(not self.pause) # don't increment if in pause mode
-        if I.DTBOARDINSTALLED: DT.clearBits(SWEEP) # be tidy, clear sweep bit low, delay to make sure Surf sees the end of this sweep
 
     def get_framebuffer(self, i):
         """Get the raw frame buffer data that corresponds to what's

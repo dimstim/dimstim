@@ -12,7 +12,7 @@ import VisionEgg.Core
 from VisionEgg.MoreStimuli import Target2D
 
 import Constants as C
-from Constants import I, SWEEP
+from Constants import I
 import Core
 try:
     from Core import DT # only importable if DT board is installed
@@ -68,7 +68,6 @@ class BlankScreen(Experiment):
         while True: # sweep loop
 
             # Set sweep bit high, do the sweep
-            if I.DTBOARDINSTALLED: DT.setBitsNoDelay(SWEEP) # set sweep bit high, no delay
             while True: # vsync loop
                 for event in pygame.event.get(): # for all events in the event queue
                     if event.type == pygame.locals.KEYDOWN:
@@ -86,9 +85,6 @@ class BlankScreen(Experiment):
                 gl.glFlush() # waits for next vsync pulse from video card
                 self.vsynctimer.tick()
                 self.nvsyncsdisplayed += 1 # increment
-
-            # Sweep's done, clear sweep bit low
-            if I.DTBOARDINSTALLED: DT.clearBitsNoDelay(SWEEP) # clears sweep bit low when done
 
             if self.quit:
                 break # out of sweep loop
