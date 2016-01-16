@@ -30,7 +30,9 @@ class SparseNoise(Experiment):
         """Check SparseNoise-specific parameters"""
         super(SparseNoise, self).check()
 
-        # need to ensure all oris are +ve and < 360. Enforce this during self.check()? or, do mod 360 on all oris, like in manbar. Shouldn't this be done for all stimuli with an ori parameter????????????
+        # need to ensure all oris are +ve and < 360. Enforce this during self.check()? or, do
+        # mod 360 on all oris, like in manbar. Shouldn't this be done for all stimuli with an
+        # ori parameter?
 
         for xi in self.dynamic.xi:
             assert xi in range(self.static.ncellswide)
@@ -44,7 +46,8 @@ class SparseNoise(Experiment):
         self.barWidth = deg2pix(self.static.widthDeg / self.static.ncellswide) # in pix
         self.barHeight = deg2pix(self.static.heightDeg / self.static.ncellshigh) # in pix
 
-        self.xi0 = (self.static.ncellswide - 1) / 2 # center of grid, in units of 0-based cell index
+        # center of grid, in units of 0-based cell index:
+        self.xi0 = (self.static.ncellswide - 1) / 2
         self.yi0 = (self.static.ncellshigh - 1) / 2
 
     def createstimuli(self):
@@ -52,7 +55,8 @@ class SparseNoise(Experiment):
         super(SparseNoise, self).createstimuli()
         self.target = Target2D(anchor='center', on=False) # keep it off until first sweep starts
 
-        self.stimuli = (self.background, self.target) # last entry will be topmost layer in viewport
+        # last entry will be topmost layer in viewport:
+        self.stimuli = (self.background, self.target)
 
         self.tp = self.target.parameters # synonym
         self.tp.size = self.barWidth, self.barHeight # static, only needs to be done once
