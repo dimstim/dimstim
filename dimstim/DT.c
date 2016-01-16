@@ -327,7 +327,7 @@ PyObject * DT_postInt16(PyObject *self, PyObject *args)
         return arglist;
     }
     incChecksum(val);
-    post(s_val & 0xffff0000 | val & 0x0000ffff);
+    post((s_val & 0xffff0000) | (val & 0x0000ffff));
     snooze();
 
     Py_INCREF(Py_None);
@@ -346,7 +346,7 @@ PyObject * DT_postInt16NoDelay(PyObject *self, PyObject *args)
         return arglist;
     }
     incChecksum(val);
-    post(s_val & 0xffff0000 | val & 0x0000ffff);
+    post((s_val & 0xffff0000) | (val & 0x0000ffff));
 
     Py_INCREF(Py_None);
     return Py_None;
@@ -370,11 +370,11 @@ PyObject * DT_postInt32(PyObject *self, PyObject *args)
     high = 0x0000ffff & (val >> 16); // shift val down by 16 bits, mask it to be safe, left with only the high bits
 
     incChecksum(low);
-    post(s_val & 0xffff0000 | low & 0x0000ffff);
+    post((s_val & 0xffff0000) | (low & 0x0000ffff));
     snooze();
 
     incChecksum(high);
-    post(s_val & 0xffff0000 | high & 0x0000ffff);
+    post((s_val & 0xffff0000) | (high & 0x0000ffff));
     snooze();
 
     Py_INCREF(Py_None);
@@ -400,11 +400,11 @@ PyObject * DT_postFloat(PyObject *self, PyObject *args)
     high = (unsigned long) (0x0000ffff & (ival >> 16));
 
     incChecksum(low);
-    post(s_val & 0xffff0000 | low & 0x0000ffff);
+    post((s_val & 0xffff0000) | (low & 0x0000ffff));
     snooze();
 
     incChecksum(high);
-    post(s_val & 0xffff0000 | high & 0x0000ffff);
+    post((s_val & 0xffff0000) | (high & 0x0000ffff));
     snooze();
 
     Py_INCREF(Py_None);
@@ -442,7 +442,7 @@ PyObject * DT_postString(PyObject *self, PyObject *args)
     for (i=0; i<numchars/2; i++)
     {
         incChecksum(ar[i]);
-        post(s_val & 0xffff0000 | ar[i] & 0x0000ffff);
+        post((s_val & 0xffff0000) | (ar[i] & 0x0000ffff));
         snooze();
     }
     free(ar);
