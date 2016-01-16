@@ -117,7 +117,7 @@ class SparseNoise(Experiment):
                             self.quit = True
                 if self.quit:
                     break # out of vsync loop
-                if I.DTBOARDINSTALLED: DT.postInt16NoDelay(self.postval) # post value to port, no delay
+                if I.DTBOARDINSTALLED: DT.postInt16NoDelay(self.postval) # post value to port
                 self.screen.clear()
                 self.viewport.draw()
                 ve.Core.swap_buffers() # returns immediately

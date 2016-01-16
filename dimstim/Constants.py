@@ -183,9 +183,9 @@ CONFIGFNAME = os.path.join(dimstim.__path__[0], 'dimstim.cfg') # dimstim config 
 # the DT340 (see DT.c):
 MAXPOSTABLEINT = 0x0000ffff
 
-NAN = 0x7fffffff # one of the many possible hex values that code for single float IEEE standard 754 NaN (quiet NaN)
-
-WARNINGDELAY = 1 # mostly deprecated, time in sec to delay execution when a warning is printed to screen
+# one of the many possible hex values that code for single float IEEE standard 754 NaN
+# (quiet NaN):
+NAN = 0x7fffffff
 
 
 class Printer(object):

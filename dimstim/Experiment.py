@@ -163,7 +163,7 @@ class Experiment(object):
                 break # out of vsync loop
             # post value to port:
             if I.DTBOARDINSTALLED:
-                DT.postInt16NoDelay(postval) # post value to port, no delay
+                DT.postInt16NoDelay(postval) # post value to port
                 self.nvsyncsdisplayed += 1 # increment. Count this as a vsync that Surf has seen
             self.screen.clear()
             self.viewport.draw()
@@ -214,7 +214,10 @@ class Experiment(object):
         self.vsynctimer = Core.VsyncTimer()
 
         # Init DT board
-        if I.DTBOARDINSTALLED: DT.initBoard()
+        if I.DTBOARDINSTALLED:
+            DT.initBoard()
+            DT.setChecksum(0) # reset DT module's checksum variable
+            DT.postInt32NoDelay(0) # clear the value on the port
 
         self.quit = False # init quit signal
         self.nvsyncsdisplayed = 0 # nvsyncs seen by Surf
@@ -240,7 +243,7 @@ class Experiment(object):
 
         # clear the port, print the Experiment checksum, close the board:
         if I.DTBOARDINSTALLED:
-            DT.postInt32NoDelay(0) # clear the value on the port, no delay
+            DT.postInt32NoDelay(0) # clear the value on the port
             self.checksum = DT.getChecksum()
             print("checksum: %d" % self.checksum)
             DT.setChecksum(0) # reset DT module's checksum variable
