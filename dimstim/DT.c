@@ -45,10 +45,10 @@ static long     s_bitShiftSize = 0; // number of bits to shift everything up by 
 
 PyObject * DT_initBoard(PyObject *self);
 PyObject * DT_closeBoard(PyObject *self);
+PyObject * DT_postInt16Wait(PyObject *self, PyObject *args);
 PyObject * DT_postInt16(PyObject *self, PyObject *args);
-PyObject * DT_postInt16NoDelay(PyObject *self, PyObject *args);
+PyObject * DT_postInt32Wait(PyObject *self, PyObject *args);
 PyObject * DT_postInt32(PyObject *self, PyObject *args);
-PyObject * DT_postInt32NoDelay(PyObject *self, PyObject *args);
 PyObject * DT_postInt32_2x16(PyObject *self, PyObject *args);
 PyObject * DT_postFloat(PyObject *self, PyObject *args);
 PyObject * DT_postString(PyObject *self, PyObject *args);
@@ -56,13 +56,20 @@ PyObject * DT_postString(PyObject *self, PyObject *args);
 PyObject * DT_getChecksum(PyObject *self);
 PyObject * DT_setChecksum(PyObject *self, PyObject *args);
 
-PyObject * DT_toggleBitsOnPost(PyObject *self, PyObject *args); // toggle specified bits on subsequent posts, pass it 0 to stop toggling on subsequent posts
-PyObject * DT_setBits(PyObject *self, PyObject *args); // set specified bits, followed by a delay
-PyObject * DT_setBitsNoDelay(PyObject *self, PyObject *args); // set specified bits without a delay
-PyObject * DT_clearBits(PyObject *self, PyObject *args); // clear specified bits, followed by a delay
-PyObject * DT_clearBitsNoDelay(PyObject *self, PyObject *args); // clear specified bits without a delay
-PyObject * DT_toggleBits(PyObject *self, PyObject *args); // toggle specified bits, followed by a delay
-PyObject * DT_toggleBitsNoDelay(PyObject *self, PyObject *args); // toggle specified bits without a delay
+// toggle specified bits on subsequent posts, pass it 0 to stop toggling on subsequent posts:
+PyObject * DT_toggleBitsOnPost(PyObject *self, PyObject *args);
+// set specified bits, followed by a delay:
+PyObject * DT_setBitsWait(PyObject *self, PyObject *args);
+// set specified bits:
+PyObject * DT_setBits(PyObject *self, PyObject *args);
+// clear specified bits, followed by a delay:
+PyObject * DT_clearBitsWait(PyObject *self, PyObject *args);
+// clear specified bits:
+PyObject * DT_clearBits(PyObject *self, PyObject *args);
+// toggle specified bits, followed by a delay:
+PyObject * DT_toggleBitsWait(PyObject *self, PyObject *args);
+// toggle specified bits:
+PyObject * DT_toggleBits(PyObject *self, PyObject *args);
 
 #define STRLEN 80 /* string size for general text manipulation   */
 
@@ -188,14 +195,14 @@ static PyMethodDef DT_methods[] = {
             METH_NOARGS, "Shuts down the OLDA interface"},
 //  {"olpost", (PyCFunction) DT_olpost,
 //          METH_VARARGS, "write integer (32 bits) to output port"},
-    {"postInt16", (PyCFunction) DT_postInt16,
+    {"postInt16Wait", (PyCFunction) DT_postInt16Wait,
             METH_VARARGS, "Posts an int16 to port, followed by a snooze to ensure the acquistion computer sees it"},
-    {"postInt16NoDelay", (PyCFunction) DT_postInt16NoDelay,
-            METH_VARARGS, "Posts an int16 to port, followed by no delay"},
-    {"postInt32", (PyCFunction) DT_postInt32,
+    {"postInt16", (PyCFunction) DT_postInt16,
+            METH_VARARGS, "Posts an int16 to port"},
+    {"postInt32Wait", (PyCFunction) DT_postInt32Wait,
             METH_VARARGS, "Posts an int32 to port, followed by a snooze to ensure the acquistion computer sees it"},
-    {"postInt32NoDelay", (PyCFunction) DT_postInt32NoDelay,
-            METH_VARARGS, "Posts an int32 to port, followed by no delay"},
+    {"postInt32", (PyCFunction) DT_postInt32,
+            METH_VARARGS, "Posts an int32 to port"},
     {"postInt32_2x16", (PyCFunction) DT_postInt32_2x16,
             METH_VARARGS, "Posts an int32 to port by posting two 16 bit chunks sequentially,\n"
                           "each followed by a snooze to ensure acquistion computer sees it"},
@@ -208,18 +215,18 @@ static PyMethodDef DT_methods[] = {
     {"toggleBitsOnPost", (PyCFunction) DT_toggleBitsOnPost,
             METH_VARARGS, "Toggles the specified bits (usually status bits) on the next post to port.\n"
                           "Pass it 0 to stop toggling on subsequent posts"},
-    {"setBits", (PyCFunction) DT_setBits,
+    {"setBitsWait", (PyCFunction) DT_setBitsWait,
             METH_VARARGS, "Set the specified bits, followed by a snooze to ensure the acquistion computer sees it"},
-    {"setBitsNoDelay", (PyCFunction) DT_setBitsNoDelay,
-            METH_VARARGS, "Set the specified bits, followed by no delay"},
-    {"clearBits", (PyCFunction) DT_clearBits,
+    {"setBits", (PyCFunction) DT_setBits,
+            METH_VARARGS, "Set the specified bits"},
+    {"clearBitsWait", (PyCFunction) DT_clearBitsWait,
             METH_VARARGS, "Clear the specified bits, followed by a snooze to ensure acquistion computer sees it"},
-    {"clearBitsNoDelay", (PyCFunction) DT_clearBitsNoDelay,
-            METH_VARARGS, "Clear the specified bits, followed by no delay"},
-    {"toggleBits", (PyCFunction) DT_toggleBits,
+    {"clearBits", (PyCFunction) DT_clearBits,
+            METH_VARARGS, "Clear the specified bits"},
+    {"toggleBitsWait", (PyCFunction) DT_toggleBitsWait,
             METH_VARARGS, "Toggle the specified bits, followed by a snooze to ensure the acquistion computer sees it"},
-    {"toggleBitsNoDelay", (PyCFunction) DT_toggleBitsNoDelay,
-            METH_VARARGS, "Toggle specified bits, followed by no delay"},
+    {"toggleBits", (PyCFunction) DT_toggleBits,
+            METH_VARARGS, "Toggle specified bits"},
 
     {"getChecksum", (PyCFunction) DT_getChecksum,
             METH_NOARGS, "Gets the checksum of everything posted to the port so far"},
@@ -325,6 +332,25 @@ PyObject * DT_closeBoard(PyObject * self)
 /* These deal with posting digital values to the board */
 
 // Posts an int16 to port, followed by a snooze to ensure the acquistion computer sees it
+PyObject * DT_postInt16Wait(PyObject *self, PyObject *args)
+{
+    PyObject *arglist;
+    long val;
+    if (!PyArg_ParseTuple (args, "i", &val))
+    {
+        puts("Error occured parsing arguments in postInt16Wait");
+        arglist = Py_BuildValue("i", -1);
+        Py_INCREF(arglist);
+        return arglist;
+    }
+    incChecksum(val);
+    post(val & 0x0000ffff);
+    snooze();
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+// Posts an int16 to port - this is nasty code duplication!!!!
 PyObject * DT_postInt16(PyObject *self, PyObject *args)
 {
     PyObject *arglist;
@@ -338,37 +364,18 @@ PyObject * DT_postInt16(PyObject *self, PyObject *args)
     }
     incChecksum(val);
     post(val & 0x0000ffff);
-    snooze();
-
-    Py_INCREF(Py_None);
-    return Py_None;
-}
-// Posts an int16 to port, followed by no delay - this is nasty code duplication!!!!
-PyObject * DT_postInt16NoDelay(PyObject *self, PyObject *args)
-{
-    PyObject *arglist;
-    long val;
-    if (!PyArg_ParseTuple (args, "i", &val))
-    {
-        puts("Error occured parsing arguments in postInt16NoDelay");
-        arglist = Py_BuildValue("i", -1);
-        Py_INCREF(arglist);
-        return arglist;
-    }
-    incChecksum(val);
-    post(val & 0x0000ffff);
 
     Py_INCREF(Py_None);
     return Py_None;
 }
 // Posts an int32 to port, followed by a snooze to ensure the acquistion computer sees it
-PyObject * DT_postInt32(PyObject *self, PyObject *args)
+PyObject * DT_postInt32Wait(PyObject *self, PyObject *args)
 {
     PyObject *arglist;
     long val;
     if (!PyArg_ParseTuple (args, "i", &val))
     {
-        puts("Error occured parsing arguments in postInt32");
+        puts("Error occured parsing arguments in postInt32Wait");
         arglist = Py_BuildValue("i", -1);
         Py_INCREF(arglist);
         return arglist;
@@ -380,14 +387,14 @@ PyObject * DT_postInt32(PyObject *self, PyObject *args)
     Py_INCREF(Py_None);
     return Py_None;
 }
-// Posts an int32 to port, followed by no delay
-PyObject * DT_postInt32NoDelay(PyObject *self, PyObject *args)
+// Posts an int32 to port
+PyObject * DT_postInt32(PyObject *self, PyObject *args)
 {
     PyObject *arglist;
     long val;
     if (!PyArg_ParseTuple (args, "i", &val))
     {
-        puts("Error occured parsing arguments in postInt32NoDelay");
+        puts("Error occured parsing arguments in postInt32");
         arglist = Py_BuildValue("i", -1);
         Py_INCREF(arglist);
         return arglist;
@@ -521,6 +528,24 @@ PyObject * DT_toggleBitsOnPost(PyObject *self, PyObject *args)
     return Py_None;
 }
 // Set the specified bits, followed by a snooze to ensure the acquistion computer sees it
+PyObject * DT_setBitsWait(PyObject *self, PyObject *args)
+{
+    PyObject *arglist;
+    int mask = 0;
+    if (!PyArg_ParseTuple (args, "i", &mask))
+    {
+        puts("Error occured parsing arguments in setBitsWait");
+        arglist = Py_BuildValue("i", -1);
+        Py_INCREF(arglist);
+        return arglist;
+    }
+    post(s_val | mask); // set masked bits high by ORing them with last value posted
+    snooze();
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+// Set the specified bits
 PyObject * DT_setBits(PyObject *self, PyObject *args)
 {
     PyObject *arglist;
@@ -532,30 +557,30 @@ PyObject * DT_setBits(PyObject *self, PyObject *args)
         Py_INCREF(arglist);
         return arglist;
     }
-    post(s_val | mask); // set masked bits high by ORing them with last value posted
-    snooze();
-
-    Py_INCREF(Py_None);
-    return Py_None;
-}
-// Set the specified bits, followed by no delay
-PyObject * DT_setBitsNoDelay(PyObject *self, PyObject *args)
-{
-    PyObject *arglist;
-    int mask = 0;
-    if (!PyArg_ParseTuple (args, "i", &mask))
-    {
-        puts("Error occured parsing arguments in setBitsNoDelay");
-        arglist = Py_BuildValue("i", -1);
-        Py_INCREF(arglist);
-        return arglist;
-    }
     post(s_val | mask); // set specified bits high by ORing them with last value posted
 
     Py_INCREF(Py_None);
     return Py_None;
 }
 // Clear the specified bits, followed by a snooze to ensure the acquistion computer sees it
+PyObject * DT_clearBitsWait(PyObject *self, PyObject *args)
+{
+    PyObject *arglist;
+    int mask = 0;
+    if (!PyArg_ParseTuple (args, "i", &mask))
+    {
+        puts("Error occured parsing arguments in clearBitsWait");
+        arglist = Py_BuildValue("i", -1);
+        Py_INCREF(arglist);
+        return arglist;
+    }
+    post(s_val & (~ mask)); // set masked bits low by NANDing them with last value posted
+    snooze();
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+// Clear the specified bits
 PyObject * DT_clearBits(PyObject *self, PyObject *args)
 {
     PyObject *arglist;
@@ -567,37 +592,19 @@ PyObject * DT_clearBits(PyObject *self, PyObject *args)
         Py_INCREF(arglist);
         return arglist;
     }
-    post(s_val & (~ mask)); // set masked bits low by NANDing them with last value posted
-    snooze();
-
-    Py_INCREF(Py_None);
-    return Py_None;
-}
-// Clear the specified bits, followed by no delay
-PyObject * DT_clearBitsNoDelay(PyObject *self, PyObject *args)
-{
-    PyObject *arglist;
-    int mask = 0;
-    if (!PyArg_ParseTuple (args, "i", &mask))
-    {
-        puts("Error occured parsing arguments in clearBitsNoDelay");
-        arglist = Py_BuildValue("i", -1);
-        Py_INCREF(arglist);
-        return arglist;
-    }
     post(s_val & (~ mask)); // set specified bits low by NANDing them with last value posted
 
     Py_INCREF(Py_None);
     return Py_None;
 }
 // Toggle the specified bits, followed by a snooze to ensure the acquistion computer sees it
-PyObject * DT_toggleBits(PyObject *self, PyObject *args)
+PyObject * DT_toggleBitsWait(PyObject *self, PyObject *args)
 {
     PyObject *arglist;
     int mask = 0;
     if (!PyArg_ParseTuple (args, "i", &mask))
     {
-        puts("Error occured parsing arguments in toggleBits");
+        puts("Error occured parsing arguments in toggleBitsWait");
         arglist = Py_BuildValue("i", -1);
         Py_INCREF(arglist);
         return arglist;
@@ -608,14 +615,14 @@ PyObject * DT_toggleBits(PyObject *self, PyObject *args)
     Py_INCREF(Py_None);
     return Py_None;
 }
-// Toggle specified bits, followed by no delay
-PyObject * DT_toggleBitsNoDelay(PyObject *self, PyObject *args)
+// Toggle specified bits
+PyObject * DT_toggleBits(PyObject *self, PyObject *args)
 {
     PyObject *arglist;
     int mask = 0;
     if (!PyArg_ParseTuple (args, "i", &mask))
     {
-        puts("Error occured parsing arguments in toggleBitsNoDelay");
+        puts("Error occured parsing arguments in toggleBits");
         arglist = Py_BuildValue("i", -1);
         Py_INCREF(arglist);
         return arglist;

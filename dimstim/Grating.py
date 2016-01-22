@@ -150,7 +150,7 @@ class Grating(Experiment):
                     break # out of vsync loop
                 if self.gp.on: # not a blank sweep
                     self.gp.phase_at_t0 = self.phase[vsynci] # update grating phase
-                if I.DTBOARDINSTALLED: DT.postInt16NoDelay(self.postval) # post value to port
+                if I.DTBOARDINSTALLED: DT.postInt16(self.postval) # post value to port
                 self.screen.clear()
                 self.viewport.draw()
                 ve.Core.swap_buffers() # returns immediately

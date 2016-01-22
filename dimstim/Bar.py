@@ -113,7 +113,7 @@ class Bar(Experiment):
                     break # out of vsync loop
                 if self.tp.on: # not a blank sweep
                     self.tp.position = self.x[vsynci], self.y[vsynci] # update target position
-                if I.DTBOARDINSTALLED: DT.postInt16NoDelay(self.postval) # post value to port
+                if I.DTBOARDINSTALLED: DT.postInt16(self.postval) # post value to port
                 self.screen.clear()
                 self.viewport.draw()
                 ve.Core.swap_buffers() # returns immediately
