@@ -35,15 +35,15 @@ d.widthDeg = dc.get('Manbar0', 'widthDeg')
 # bar height (deg)
 d.heightDeg = dc.get('Manbar0', 'heightDeg')
 # bar brightness (0-1)
-d.brightness = [0.1, 1]
+d.brightness = [0, 1]
 # background brightness (0-1)
-d.bgbrightness = 0
+d.bgbrightness = 0.5
 # antialiase the bar?
 d.antialiase = True
 # sweep duration (sec)
-d.sweepSec = 2
+d.sweepSec = 2.5
 # post-sweep duration to display blank screen (sec)
-d.postsweepSec = 0
+d.postsweepSec = 0.5
 
 vs = Variables()
 vs.ori = Variable(vals=d.ori, dim=0, shuffle=True) # kwargs: vals, dim, shuffle, random
