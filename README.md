@@ -23,14 +23,22 @@ dimstim depends on most or all of the following Python packages:
 
 Right now, dimstim requires a specific revision of VisionEgg, rev 1413, in order to run
 properly. This is due to a switch to using pyglet for window initialization and positioning.
-You can get it at [http://github.com/visionegg/visionegg/tarball/tags/svn/r1413](VisionEgg rev 1413
-here).
+You can get it at [http://github.com/visionegg/visionegg/tarball/tags/svn/r1413](VisionEgg
+rev 1413 here).
 
 If you want to use a Data Translations board for digital output, you'll need to have DT's Open
 Layers libraries installed. If you're installing from source and you want to use your DT
 board, you'll also need a compiler for Python to use when building the DT.c extension. In the
 future, this requirement might disappear if that code is switched to use Python's
 [ctypes](https://docs.python.org/2/library/ctypes.html) instead.
+
+The first 16 bits (bits 0--15) on the DT340 board are used to communicate a uint16 sweep
+identifier to the acquisition system. The 17th bit (bit 16) is the RECORD bit, which is used
+to trigger the acquisition system to start saving data to disk. The vertical synch (vsync)
+output of the video port driving the stimulus monitor should be wired separately to the
+acquisition system as well, to record the precise timing of each and every refresh of the
+screen. The vsynch should be used to time the sampling of the 16 bit digital output word on
+the acquisition system.
 
 To install dimstim:
 ```
