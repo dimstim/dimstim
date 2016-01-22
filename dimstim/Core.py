@@ -387,46 +387,7 @@ class Header(object):
         """Init the text header"""
         self.experiment = experiment
         self.text = TextHeader(experiment=experiment)
-    '''
-    def broadcast(self):
-        """Send entire stimulus header to Surf.
-        Assumes that a DT board has already been initialized"""
-        # Init port for stream start
-        DT.clearBits(0x00ffffff) # clear all 24 used bits low
-        DT.setBits(RUN) # set run bit high, listen up Surf!
-        # Post Surf pre-header stuff
-        DT.toggleBitsOnPost(DATA) # toggle data bit on every post to follow
-        DT.postString(self.SURFfileheader, 2)
-        DT.postInt16(self.version)
-        DT.postString(self.script, C.LENFNAMEINHEADER) # max LENFNAMEINHEADER characters
-        # Post the NVS header
-        for val in self.NVS.data:
-            if val == NAN:
-                DT.postInt32_2x16(val) # post single float NaN code using Int32, SURF interprets it as a float
-            else:
-                DT.postFloat(val)
-        # Post the text header
-        DT.postString(self.text.data, len(self.text.data))
-        # Post Surf post-header stuff
-        DT.postFloat(I.SCREENWIDTHCM)
-        DT.postFloat(I.SCREENHEIGHTCM)
-        DT.postFloat(I.SCREENDISTANCECM)
-        DT.postFloat(I.REFRESHRATE)
-        gamma = self.experiment.static.gamma
-        if len(toiter(gamma)) == 1: # it's a single value
-            DT.postFloat(gamma or 0.0) # gamma might be None
-        else: # it's a 3-sequence, can't fit that here, post NaN
-            DT.postInt32_2x16(NAN) # post single float NaN code using Int32, SURF interprets it as a float
-        DT.postFloat(0.0) # gamma offset
-        DT.postInt16(self.intsec) # Surf expects an int for this one
-        # Get, post, and reset header checksum
-        self.checksum = DT.getChecksum()
-        DT.postInt16(self.checksum)
-        DT.setChecksum(0)
-        # Shutdown broadcast
-        DT.toggleBitsOnPost(0) # stop toggling data bit on every post
-        DT.postInt16(0) # set the port to 0
-    '''
+
 
 class TextHeader(object):
     """Text header"""
