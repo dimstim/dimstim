@@ -23,6 +23,8 @@ MAXPOSTABLEINT = 0x0000ffff
 # one of the many possible hex values that code for single float IEEE standard 754 NaN
 # (quiet NaN):
 NAN = 0x7fffffff
+# RECORD bit, +ve edge triggers Intan system to start saving data:
+RECORD = 0x00010000
 
 
 class DimstimConfigParser(ConfigParser.RawConfigParser):

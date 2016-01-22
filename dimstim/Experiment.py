@@ -218,6 +218,7 @@ class Experiment(object):
             DT.initBoard()
             DT.setChecksum(0) # reset DT module's checksum variable
             DT.postInt32NoDelay(0) # clear the value on the port
+            DT.postInt32NoDelay(C.RECORD) # set RECORD bit high to trigger Intan system
 
         self.quit = False # init quit signal
         self.nvsyncsdisplayed = 0 # nvsyncs seen by Surf
