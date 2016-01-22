@@ -33,7 +33,6 @@ FUNCTIONS:
 
 static long     s_checksum = 0;
 static long     s_toggleMask = 0; // bits to toggle on each post() call
-static long     s_snooze = 0;
 //static long     s_snoozetime = 10000; // this amounts to as little as 100us on a K7-700
 //static long     s_snoozetime = 15000; // this amounts to ~60us on a P4 1.8GHz
 static long     s_snoozetime = 110000; // this amounts to ~50us on a Core2 Duo 2.4GHz
@@ -108,9 +107,9 @@ BOOL __export FAR PASCAL GetDriver(LPSTR  lpszName, LPSTR  lpszEntry, LPARAM lPa
 void snooze()
 {
     int i;
+    int count = 0;
     for (i=0; i<s_snoozetime; i++)
-        s_snooze++;
-    s_snooze &= 0x00ffffff; // keep s_snooze as a 24 bit int with overflow, but why? shouldn't this be inside the snooze loop then?
+        count++;
 }
 
 // Posts a value to port, taking into account the toggle mask and the bitshift size
