@@ -14,6 +14,16 @@ import VisionEgg
 import dimstim
 from Core import dictattr
 
+SLASH = '/' # use forward slashes instead of having to use double backslashes
+TAB = '    ' # 4 spaces
+CONFIGFNAME = os.path.join(dimstim.__path__[0], 'dimstim.cfg') # dimstim config filename
+# Maximum postable integer, 65535 for 16 digital lines. These correspond to Ports A and B on
+# the DT340 (see DT.c):
+MAXPOSTABLEINT = 0x0000ffff
+# one of the many possible hex values that code for single float IEEE standard 754 NaN
+# (quiet NaN):
+NAN = 0x7fffffff
+
 
 class DimstimConfigParser(ConfigParser.RawConfigParser):
     """Reads and writes the dimstim config file, adds an update function"""
@@ -172,20 +182,6 @@ class DimstimConfigParser(ConfigParser.RawConfigParser):
         # if any parsing errors occurred, raise an exception
         if e:
             raise e
-
-
-SLASH = '/' # use forward slashes instead of having to use double backslashes
-TAB = '    ' # 4 spaces
-
-CONFIGFNAME = os.path.join(dimstim.__path__[0], 'dimstim.cfg') # dimstim config filename
-
-# Maximum postable integer, 65535 for 16 digital lines. These correspond to Ports A and B on
-# the DT340 (see DT.c):
-MAXPOSTABLEINT = 0x0000ffff
-
-# one of the many possible hex values that code for single float IEEE standard 754 NaN
-# (quiet NaN):
-NAN = 0x7fffffff
 
 
 class Printer(object):
