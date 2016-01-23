@@ -316,7 +316,7 @@ class SweepTable(object):
         """Check the length of the dimitable"""
         nsweeps = len(self.dimitable)
         if nsweeps > C.MAXPOSTABLEINT:
-            raise ValueError, 'sweep table has %d sweeps, with indices exceeding the maximum index %d that can be sent to Surf (index %d is reserved to signify a blank sweep). Reduce the number of dimensions or conditions' % (nsweeps, C.MAXPOSTABLEINT-1, C.MAXPOSTABLEINT)
+            raise ValueError, 'sweep table has %d sweeps, with indices exceeding the maximum index %d that can be sent to acq (index %d is reserved to signify a blank sweep). Reduce the number of dimensions or conditions' % (nsweeps, C.MAXPOSTABLEINT-1, C.MAXPOSTABLEINT)
 
     def geti(self):
         """Return one Run's worth of sweep table indices, in a numpy array.
@@ -393,7 +393,7 @@ class TextHeader(object):
     """Text header"""
     def __init__(self, experiment):
         self.experiment = experiment
-        self.data = '' # holds the actual string to send to Surf as the text header
+        self.data = '' # holds the actual string to save as the text header
         self.build()
         #self.check()
 

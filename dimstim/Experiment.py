@@ -57,7 +57,8 @@ class Experiment(object):
             blanksweepvsyncs = sec2intvsync(self.blanksweeps.sec) * list(i).count(None)
         except AttributeError: # blanksweeps are None, None has no .sec attrib
             blanksweepvsyncs = 0
-        notblank = np.int32(i[np.not_equal(i, None)]) # sweep table indices that aren't blank sweeps, i was an object array due to Nones in it
+        # sweep table indices that aren't blank sweeps, i was an object array due to Nones in it:
+        notblank = np.int32(i[np.not_equal(i, None)])
         nvsyncs = sec2intvsync(self.static.preexpSec) + \
                   np.asarray([ sec2intvsync(sweeptime) for sweeptime in self.st.sweepSec[notblank] ]).sum() + \
                   np.asarray([ sec2intvsync(postsweeptime) for postsweeptime in self.st.postsweepSec[notblank] ]).sum() + \
@@ -164,7 +165,7 @@ class Experiment(object):
             # post value to port:
             if I.DTBOARDINSTALLED:
                 DT.postInt16(postval) # post value to port
-                self.nvsyncsdisplayed += 1 # increment. Count this as a vsync that Surf has seen
+                self.nvsyncsdisplayed += 1 # increment. Count this as a vsync that acq has seen
             self.screen.clear()
             self.viewport.draw()
             ve.Core.swap_buffers() # returns immediately
@@ -218,13 +219,14 @@ class Experiment(object):
             DT.initBoard()
             DT.setChecksum(0) # reset DT module's checksum variable
             DT.postInt32(0) # clear the value on the port
-            DT.postInt32Wait(C.RECORD) # trigger Intan system with +ve edge of RECORD bit
+            DT.postInt32Wait(C.RECORD) # trigger acquisition with +ve edge of RECORD bit
 
         self.quit = False # init quit signal
-        self.nvsyncsdisplayed = 0 # nvsyncs seen by Surf
+        self.nvsyncsdisplayed = 0 # nvsyncs seen by acq
 
         # time-critical stuff starts here
-        self.sync2vsync(nswaps=2) # sync up to vsync signal, ensures that all following swap_buffers+glFlush call pairs return on the vsync
+        # sync up to vsync signal, ensures that all following swap_buffers+glFlush call pairs return on the vsync
+        self.sync2vsync(nswaps=2)
 
         self.startdatetime = datetime.datetime.now()
         self.starttime = time.clock() # precision timestamp

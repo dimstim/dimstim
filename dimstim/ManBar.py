@@ -306,7 +306,7 @@ class ManBar(Experiment):
         '''
         self.attach_handlers()
 
-        self.nvsyncsdisplayed = 0 # nvsyncs seen by Surf
+        self.nvsyncsdisplayed = 0 # nvsyncs seen by acq
 
         self.startdatetime = datetime.datetime.now()
         self.starttime = time.clock() # precision timestamp
