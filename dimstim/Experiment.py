@@ -15,7 +15,7 @@ import VisionEgg.Core # isn't imported automatically by VE's __init__.py
 from VisionEgg.MoreStimuli import Target2D
 
 import Constants as C
-from Constants import I
+from Constants import I, dc
 import Core
 from Core import iterable, toiter, deg2pix, sec2intvsync, vsync2sec, isotime
 try:
@@ -72,19 +72,32 @@ class Experiment(object):
         self.sweeptable = Core.SweepTable(experiment=self)
         self.st = self.sweeptable.data # synonym, used a lot by Experiment subclasses
 
-        # Do time and space conversions of applicable static and dynamic parameters - or maybe do this in init - is this really necessary, can't it be done on the fly, or would that be too slow? If too slow, write it inline in C and use scipy.weave?
-        # Is there a better place to store these, rather than polluting self namespace?
-        self.xorig = deg2pix(self.static.xorigDeg) + I.SCREENWIDTH / 2 # do this once, since it's static, save time in main loop
+        # Do time and space conversions of applicable static and dynamic parameters.
+        # Do this once, since it's static, to save time in main loop.
+        # TODO: Is there a better place to store these, rather than polluting self namespace?
+        self.xorig = deg2pix(self.static.xorigDeg) + I.SCREENWIDTH / 2
         self.yorig = deg2pix(self.static.yorigDeg) + I.SCREENHEIGHT / 2
 
         # Calculate Experiment duration
         self.sec = self.calcduration()
         info('Expected experiment duration: %s' % isotime(self.sec, 6), tolog=False)
 
-        # Build the text header
+        # Build the text header and print it to log
         self.header = Core.Header(experiment=self)
         info('TextHeader.data:', toscreen=False)
         printf2log(str(self.header.text)) # print text header data to log
+
+        # Save the textheader to a separate file for reconciliation with acquisition system
+        scriptfname = os.path.basename(self.script) # drop its path
+        scriptfname, ext = os.path.splitext(scriptfname) # drop its .py extension
+        # get a timestamp string, same format as .rhd timestamp:
+        dtstr = datetime.datetime.now().strftime('%y%m%d_%H%M%S')
+        txthdrfname = scriptfname + '_' + dtstr + '.textheader'
+        txthdrpath = dc.get('Path', 'txthdr')
+        fname = os.path.join(txthdrpath, txthdrfname)
+        f = open(fname, 'w')
+        f.write(str(self.header.text))
+        f.close()
 
     def setgamma(self, gamma):
         """Set VisionEgg's gamma parameter"""
