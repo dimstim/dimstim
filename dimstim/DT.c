@@ -19,7 +19,7 @@ FUNCTIONS:
 ****************************************************************************/
 
 
-#include <Python.h> // Standard ansi C includes of <stdlib.h> and <stdio.h> already included by <Python.h>
+#include <Python.h> // Standard ansi C <stdlib.h> and <stdio.h> included by <Python.h>
 #include <windows.h> // MS Windows and Microsoft specific includes
 #include <olmem.h>
 #include <olerrors.h>
@@ -29,7 +29,7 @@ FUNCTIONS:
 
 /* function prototypes, constants and globals - should be in "DT.h" */
 
-#define RETURN_ERR(x)   { PyObject *rv; rv = Py_BuildValue("i", x); Py_INCREF(rv); return rv; }
+#define RETURN_ERR(x)  { PyObject *rv; rv = Py_BuildValue("i", x); Py_INCREF(rv); return rv; }
 
 static long     s_checksum = 0;
 static long     s_toggleMask = 0; // bits to toggle on each post() call
@@ -37,8 +37,9 @@ static long     s_toggleMask = 0; // bits to toggle on each post() call
 //static long     s_snoozetime = 15000; // this amounts to ~60us on a P4 1.8GHz
 static long     s_snoozetime = 110000; // this amounts to ~50us on a Core2 Duo 2.4GHz
 static long     s_val = 0; // global var that monitors the current 32 bit value on the port
-static long     s_bitShiftSize = 0; // number of bits to shift everything up by before posting to the board,
-                                    // used due to wiring eccentricities of Datawave panel
+// number of bits to shift everything up by before posting to the board,
+// formerly used due to wiring eccentricities of Datawave panel:
+static long     s_bitShiftSize = 0;
 
 /* hardware interface */
 
@@ -70,38 +71,35 @@ PyObject * DT_toggleBitsWait(PyObject *self, PyObject *args);
 // toggle specified bits:
 PyObject * DT_toggleBits(PyObject *self, PyObject *args);
 
-#define STRLEN 80 /* string size for general text manipulation   */
+#define STRLEN 80 /* string size for general text manipulation */
 
 typedef struct tag_board {
-    HDEV hdrvr;         /* device handle, was formerly of type HDRVD, but that gave type warnings */
-    HDASS hdass;        /* sub system handle        */
-    ECODE status;       /* board error status       */
+    HDEV hdrvr;         /* device handle, using type HDRVD gave type warnings */
+    HDASS hdass;        /* sub system handle */
+    ECODE status;       /* board error status */
     HBUF  hbuf;         /* sub system buffer handle */
-    PWORD lpbuf;        /* buffer pointer           */
-    char name[MAX_BOARD_NAME_LENGTH];  /* string for board name    */
-    char entry[MAX_BOARD_NAME_LENGTH]; /* string for board name    */
+    PWORD lpbuf;        /* buffer pointer */
+    char name[MAX_BOARD_NAME_LENGTH];  /* string for board name */
+    char entry[MAX_BOARD_NAME_LENGTH]; /* string for board name */
 } BOARD;
 
 typedef BOARD FAR* LPBOARD;
 BOARD board;
 HDASS hDout; // data acq subsystem handle
 
-void snooze(); // waits for s_snoozetime number of for loops
-void post(long); // posts specified value to port; updates s_val
-void incChecksum(long); // increments checksum by specified value
-void PrintSubSystems(); // prints quantity of channels available
-                        // for each subsystem
+void snooze(); // wait for s_snoozetime number of for loops
+void post(long); // post specified value to port, update s_val
+void incChecksum(long); // increment checksum by specified value
+void PrintSubSystems(); // print quantity of channels available for each subsystem
 
 /* Function used in initializing DT-3010 driver olDAEnumBoards */
-BOOL __export FAR PASCAL GetDriver(LPSTR  lpszName, LPSTR  lpszEntry, LPARAM lParam);
 
-/* End of type definitions? */
-/*-----------------------------------------------------------------------*/
+BOOL __export FAR PASCAL GetDriver(LPSTR  lpszName, LPSTR  lpszEntry, LPARAM lParam);
 
 
 /* Local functions, not visible in Python */
 
-// pauses for s_snoozetime number of loops, this ensures that acquisition has enough time
+// pause for s_snoozetime number of loops, this ensures that acquisition has enough time
 // to catch the value on the port, before it possibly changes (currently, acquisition runs
 // at 25KHz sampling -> 40us sample interval)
 void snooze()
@@ -112,7 +110,7 @@ void snooze()
         count++;
 }
 
-// Posts a value to port, taking into account the toggle mask and the bitshift size
+// Post a value to port, taking into account the toggle mask and the bitshift size
 void post(long val)
 {
     int ecode;
@@ -123,9 +121,11 @@ void post(long val)
     }
     s_val = val; // update s_val
     val <<= s_bitShiftSize; // shift bits up by s_bitShiftSize
-    if ((ecode=olDaPutSingleValue(hDout, val, 0, 1)) != OLNOERROR) // write to port, check for errors
+    // write to port, check for errors:
+    if ((ecode=olDaPutSingleValue(hDout, val, 0, 1)) != OLNOERROR)
     {
-        //printf("Error writing to port (%d)\n", ecode); // comment out to reduce printing to screen when board not installed
+        // comment out to reduce printing to screen when board not installed:
+        //printf("Error writing to port (%d)\n", ecode);
     }
     //printf("%ld\n", val);
 }
@@ -188,50 +188,39 @@ the board. If successful, enumeration is halted.
 /* Declare Python methods, their args and their docstrings */
 
 static PyMethodDef DT_methods[] = {
-    {"initBoard", (PyCFunction) DT_initBoard,
-            METH_NOARGS, "Initalizes the OLDA interface"},
-    {"closeBoard", (PyCFunction) DT_closeBoard,
-            METH_NOARGS, "Shuts down the OLDA interface"},
-//  {"olpost", (PyCFunction) DT_olpost,
-//          METH_VARARGS, "write integer (32 bits) to output port"},
-    {"postInt16Wait", (PyCFunction) DT_postInt16Wait,
-            METH_VARARGS, "Posts an int16 to port, followed by a snooze to ensure the acquistion computer sees it"},
-    {"postInt16", (PyCFunction) DT_postInt16,
-            METH_VARARGS, "Posts an int16 to port"},
-    {"postInt32Wait", (PyCFunction) DT_postInt32Wait,
-            METH_VARARGS, "Posts an int32 to port, followed by a snooze to ensure the acquistion computer sees it"},
-    {"postInt32", (PyCFunction) DT_postInt32,
-            METH_VARARGS, "Posts an int32 to port"},
-    {"postInt32_2x16", (PyCFunction) DT_postInt32_2x16,
-            METH_VARARGS, "Posts an int32 to port by posting two 16 bit chunks sequentially,\n"
-                          "each followed by a snooze to ensure acquistion computer sees it"},
-    {"postFloat", (PyCFunction) DT_postFloat,
-            METH_VARARGS, "Posts a float to port, followed by a snooze to ensure acquistion computer sees it"},
-    {"postString", (PyCFunction) DT_postString,
-            METH_VARARGS, "Posts a string to port, 2 chars at a time, followed by a snooze\n"
-                          "to ensure the acquistion computer sees it"},
-
-    {"toggleBitsOnPost", (PyCFunction) DT_toggleBitsOnPost,
-            METH_VARARGS, "Toggles the specified bits (usually status bits) on the next post to port.\n"
-                          "Pass it 0 to stop toggling on subsequent posts"},
-    {"setBitsWait", (PyCFunction) DT_setBitsWait,
-            METH_VARARGS, "Set the specified bits, followed by a snooze to ensure the acquistion computer sees it"},
-    {"setBits", (PyCFunction) DT_setBits,
-            METH_VARARGS, "Set the specified bits"},
-    {"clearBitsWait", (PyCFunction) DT_clearBitsWait,
-            METH_VARARGS, "Clear the specified bits, followed by a snooze to ensure acquistion computer sees it"},
-    {"clearBits", (PyCFunction) DT_clearBits,
-            METH_VARARGS, "Clear the specified bits"},
-    {"toggleBitsWait", (PyCFunction) DT_toggleBitsWait,
-            METH_VARARGS, "Toggle the specified bits, followed by a snooze to ensure the acquistion computer sees it"},
-    {"toggleBits", (PyCFunction) DT_toggleBits,
-            METH_VARARGS, "Toggle specified bits"},
-
-    {"getChecksum", (PyCFunction) DT_getChecksum,
-            METH_NOARGS, "Gets the checksum of everything posted to the port so far"},
-    {"setChecksum", (PyCFunction) DT_setChecksum,
-            METH_VARARGS, "Sets the checksum to whatever desired value.\n"
-                          "This is usually called just to init the checksum to 0"},
+    {"initBoard", (PyCFunction) DT_initBoard, METH_NOARGS, "Initalize the OLDA interface"},
+    {"closeBoard", (PyCFunction) DT_closeBoard, METH_NOARGS, "Shut down the OLDA interface"},
+    {"postInt16Wait", (PyCFunction) DT_postInt16Wait, METH_VARARGS,
+        "Post an int16 to port, followed by a snooze to ensure acquistion sees it"},
+    {"postInt16", (PyCFunction) DT_postInt16, METH_VARARGS, "Post an int16 to port"},
+    {"postInt32Wait", (PyCFunction) DT_postInt32Wait, METH_VARARGS,
+        "Post an int32 to port, followed by a snooze to ensure acquistion sees it"},
+    {"postInt32", (PyCFunction) DT_postInt32, METH_VARARGS, "Post an int32 to port"},
+    {"postInt32_2x16", (PyCFunction) DT_postInt32_2x16, METH_VARARGS,
+        "Post an int32 to port by posting two 16 bit chunks sequentially,\n"
+        "each followed by a snooze to ensure acquistion sees it"},
+    {"postFloat", (PyCFunction) DT_postFloat, METH_VARARGS,
+        "Post a float to port, followed by a snooze to ensure acquistion sees it"},
+    {"postString", (PyCFunction) DT_postString, METH_VARARGS,
+        "Post a string to port, 2 chars at a time, followed by a snooze\n"
+        "to ensure the acquistion computer sees it"},
+    {"toggleBitsOnPost", (PyCFunction) DT_toggleBitsOnPost, METH_VARARGS,
+        "Toggle the specified bits (usually status bits) on the next post to port.\n"
+        "Pass it 0 to stop toggling on subsequent posts"},
+    {"setBitsWait", (PyCFunction) DT_setBitsWait,  METH_VARARGS,
+        "Set the specified bits, followed by a snooze to ensure acquistion sees it"},
+    {"setBits", (PyCFunction) DT_setBits, METH_VARARGS, "Set the specified bits"},
+    {"clearBitsWait", (PyCFunction) DT_clearBitsWait, METH_VARARGS,
+        "Clear the specified bits, followed by a snooze to ensure acquistion sees it"},
+    {"clearBits", (PyCFunction) DT_clearBits, METH_VARARGS, "Clear the specified bits"},
+    {"toggleBitsWait", (PyCFunction) DT_toggleBitsWait, METH_VARARGS,
+        "Toggle the specified bits, followed by a snooze to ensure the acquistion sees it"},
+    {"toggleBits", (PyCFunction) DT_toggleBits, METH_VARARGS, "Toggle specified bits"},
+    {"getChecksum", (PyCFunction) DT_getChecksum, METH_NOARGS,
+        "Get the checksum of everything posted to the port so far"},
+    {"setChecksum", (PyCFunction) DT_setChecksum, METH_VARARGS,
+        "Set the checksum to whatever desired value.\n"
+        "This is usually called just to init the checksum to 0"},
 
     {NULL, NULL, 0, NULL} /* Sentinel. What's a sentinel? */
 };
