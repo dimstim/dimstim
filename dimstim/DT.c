@@ -257,9 +257,9 @@ PyObject * DT_initBoard(PyObject * self)
         RETURN_ERR(-1);
     }
 
-    // now init output stream
-    /* get handle to Digital Output sub system */
-    if (olDaGetDASS(board.hdrvr,OLSS_DOUT, 0, &hDout) != OLNOERROR) // get data acq subsystem, returns subsystem handle
+    /* now init output stream */
+    // get data acq subsystem, return subsystem handle:
+    if (olDaGetDASS(board.hdrvr,OLSS_DOUT, 0, &hDout) != OLNOERROR)
     {
         puts("Error - unable to grab DASS");
         RETURN_ERR(-1);
@@ -272,9 +272,12 @@ PyObject * DT_initBoard(PyObject * self)
         RETURN_ERR(-1);
     }
 
-    /* set subsystem to 32 bits of digital output (ports A, B, C & D). Port A line 0 is LSB, port B line 7 is MSB.
+    /* set subsystem to 32 bits of digital output (ports A, B, C & D).
+    Port A line 0 is LSB, port B line 7 is MSB.
     Pinouts on J1 68 pin cable are, from Port A line 0 LSB to port B line 7 MSB:
-    [60, 26, 59, 25, 58, 24, 57, 23, 55, 21, 54, 20, 53, 19, 52]. Pin 56 is a convenient digital ground.
+    [60, 26, 59, 25, 58, 24, 57, 23, 55, 21, 54, 20, 53, 19, 52].
+    Pin 56 is a convenient digital ground.
+    Port C line 0, used as the RECORD bit to trigger acquisition to start saving, is pin 51.
     See DT340 manual "UM340.pdf" */
     if (olDaSetResolution(hDout, 32) != OLNOERROR)
     {
@@ -317,9 +320,12 @@ PyObject * DT_closeBoard(PyObject * self)
 }
 
 
-/* These deal with posting digital values to the board */
+/* Functions for posting digital values to the board */
 
-// Posts an int16 to port, followed by a snooze to ensure the acquistion computer sees it
+// TODO: fix code duplication within each postInt** and postInt**Wait pair,
+// make whether to snooze or not an argument
+
+// Post an int16 to port, followed by a snooze to ensure acquistion sees it
 PyObject * DT_postInt16Wait(PyObject *self, PyObject *args)
 {
     PyObject *arglist;
@@ -338,7 +344,8 @@ PyObject * DT_postInt16Wait(PyObject *self, PyObject *args)
     Py_INCREF(Py_None);
     return Py_None;
 }
-// Posts an int16 to port - this is nasty code duplication!!!!
+
+// Post an int16 to port
 PyObject * DT_postInt16(PyObject *self, PyObject *args)
 {
     PyObject *arglist;
@@ -356,7 +363,8 @@ PyObject * DT_postInt16(PyObject *self, PyObject *args)
     Py_INCREF(Py_None);
     return Py_None;
 }
-// Posts an int32 to port, followed by a snooze to ensure the acquistion computer sees it
+
+// Post an int32 to port, followed by a snooze to ensure acquistion sees it
 PyObject * DT_postInt32Wait(PyObject *self, PyObject *args)
 {
     PyObject *arglist;
@@ -375,7 +383,8 @@ PyObject * DT_postInt32Wait(PyObject *self, PyObject *args)
     Py_INCREF(Py_None);
     return Py_None;
 }
-// Posts an int32 to port
+
+// Post an int32 to port
 PyObject * DT_postInt32(PyObject *self, PyObject *args)
 {
     PyObject *arglist;
@@ -393,8 +402,9 @@ PyObject * DT_postInt32(PyObject *self, PyObject *args)
     Py_INCREF(Py_None);
     return Py_None;
 }
-// Posts an int32 to port by posting two 16 bit chunks sequentially,
-// each followed by a snooze to ensure the acquistion computer sees it
+
+// Post an int32 to port by posting two 16 bit chunks sequentially,
+// each followed by a snooze to ensure acquistion sees it
 PyObject * DT_postInt32_2x16(PyObject *self, PyObject *args)
 {
     PyObject *arglist;
@@ -407,9 +417,10 @@ PyObject * DT_postInt32_2x16(PyObject *self, PyObject *args)
         return arglist;
     }
 
-    // break into 16 bit chunks, send sequentially
+    // break into 16 bit chunks, send sequentially:
     low = 0x0000ffff & val;
-    high = 0x0000ffff & (val >> 16); // shift val down by 16 bits, mask it to be safe, left with only the high bits
+    // shift val down by 16 bits, mask it to be safe, left with only the high bits:
+    high = 0x0000ffff & (val >> 16);
 
     incChecksum(low);
     post(low & 0x0000ffff);
@@ -422,7 +433,8 @@ PyObject * DT_postInt32_2x16(PyObject *self, PyObject *args)
     Py_INCREF(Py_None);
     return Py_None;
 }
-// Posts a float to port, followed by a snooze to ensure the acquistion computer sees it
+
+// Post a float to port, followed by a snooze to ensure acquistion sees it
 PyObject * DT_postFloat(PyObject *self, PyObject *args)
 {
     PyObject *arglist;
@@ -452,7 +464,8 @@ PyObject * DT_postFloat(PyObject *self, PyObject *args)
     Py_INCREF(Py_None);
     return Py_None;
 }
-// Posts a string to port, 2 chars at a time, followed by a snooze to ensure the acquistion computer sees it
+
+// Post a string to port, 2 chars at a time, followed by a snooze to ensure acquistion sees it
 PyObject * DT_postString(PyObject *self, PyObject *args)
 {
     PyObject *arglist;
@@ -468,11 +481,11 @@ PyObject * DT_postString(PyObject *self, PyObject *args)
         Py_INCREF(arglist);
         return arglist;
     }
-    // make sure num chars is even
+    // make sure num chars is even:
     if ((numchars % 2) == 1)
         numchars++;
 
-    // copy into buffer. append zeros to end if shorter than specified length
+    // copy into buffer, append zeros to end if shorter than specified length:
     ar = (short *) malloc(numchars);
     car = (char *) ar;
     memset(car, 0, numchars);
@@ -495,9 +508,9 @@ PyObject * DT_postString(PyObject *self, PyObject *args)
 }
 
 
-/* Deal with setting and toggling of bits on the port */
+/* Functions for setting and toggling specific bits on the port */
 
-// Toggles the specified bits (usually status bits) on the next post to port
+// Toggle the specified bits (usually status bits) on the next post to port.
 // Pass it 0 to stop toggling on subsequent posts
 PyObject * DT_toggleBitsOnPost(PyObject *self, PyObject *args)
 {
@@ -515,7 +528,8 @@ PyObject * DT_toggleBitsOnPost(PyObject *self, PyObject *args)
     Py_INCREF(Py_None);
     return Py_None;
 }
-// Set the specified bits, followed by a snooze to ensure the acquistion computer sees it
+
+// Set the specified bits, followed by a snooze to ensure acquistion sees it
 PyObject * DT_setBitsWait(PyObject *self, PyObject *args)
 {
     PyObject *arglist;
@@ -533,6 +547,7 @@ PyObject * DT_setBitsWait(PyObject *self, PyObject *args)
     Py_INCREF(Py_None);
     return Py_None;
 }
+
 // Set the specified bits
 PyObject * DT_setBits(PyObject *self, PyObject *args)
 {
@@ -550,7 +565,8 @@ PyObject * DT_setBits(PyObject *self, PyObject *args)
     Py_INCREF(Py_None);
     return Py_None;
 }
-// Clear the specified bits, followed by a snooze to ensure the acquistion computer sees it
+
+// Clear the specified bits, followed by a snooze to ensure acquistion sees it
 PyObject * DT_clearBitsWait(PyObject *self, PyObject *args)
 {
     PyObject *arglist;
@@ -603,6 +619,7 @@ PyObject * DT_toggleBitsWait(PyObject *self, PyObject *args)
     Py_INCREF(Py_None);
     return Py_None;
 }
+
 // Toggle specified bits
 PyObject * DT_toggleBits(PyObject *self, PyObject *args)
 {
@@ -622,16 +639,17 @@ PyObject * DT_toggleBits(PyObject *self, PyObject *args)
 }
 
 
-/* Deal with the checksum */
+/* Functions for getting and setting the checksum */
 
-// Gets the checksum of everything posted to the port so far
+// Get the checksum of everything posted to the port so far
 PyObject * DT_getChecksum(PyObject *self)
 {
     PyObject * arglist = Py_BuildValue("i", s_checksum);
     Py_INCREF(arglist);
     return arglist;
 }
-// Sets the checksum to whatever desired value. This is usually called just to init the checksum to 0
+
+// Set the checksum to whatever desired value, usually only called to init the checksum to 0
 PyObject * DT_setChecksum(PyObject *self, PyObject *args)
 {
     PyObject *arglist;
