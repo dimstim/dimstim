@@ -24,7 +24,11 @@ dimstim depends on most or all of the following Python packages:
 Right now, dimstim requires a specific revision of VisionEgg, rev 1413, in order to run
 properly. This is due to a switch to using pyglet for window initialization and positioning.
 You can get it at [http://github.com/visionegg/visionegg/tarball/tags/svn/r1413](VisionEgg
-rev 1413 here).
+rev 1413 here). For a 1280x1024 primary (user) display, the secondary (animal) display should
+be positioned in the Windows Display Properties dialog box at the position (1280, 200).
+I'm not entirely sure why, but this seems to vertically center the secondary display on the
+primary, and has something to do with pyglet. If this isn't set properly, the stimulus seems
+to not be properly vertically centered on the secondary display.
 
 If you want to use a Data Translations board for digital output, you'll need to have DT's Open
 Layers libraries installed. If you're installing from source and you want to use your DT
